@@ -15,7 +15,7 @@ public class GameRoom {
 
     private String title;
 
-    @Column(unique = true)
+    // ИЗМЕНЕНИЕ: Убрана аннотация @Column(unique = true), код больше не уникальный
     private String roomCode;
 
     private boolean isPublic;
@@ -27,12 +27,10 @@ public class GameRoom {
     private int timeLimitPerTurnInSeconds;
     private int turnsPerPlayer;
 
-    // One room - one game
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "story_id", referencedColumnName = "id")
     private Story story;
 
-    //Many players can be in many rooms
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "room_players",
@@ -44,6 +42,7 @@ public class GameRoom {
     public GameRoom() {
     }
 
+    // Getters and setters...
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getTitle() { return title; }
