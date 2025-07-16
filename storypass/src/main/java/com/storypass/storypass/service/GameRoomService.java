@@ -2,6 +2,7 @@ package com.storypass.storypass.service;
 
 import com.storypass.storypass.dto.CreateRoomRequest;
 import com.storypass.storypass.dto.GameRoomDto;
+import com.storypass.storypass.exception.ResourceNotFoundException;
 import com.storypass.storypass.model.GameRoom;
 import com.storypass.storypass.model.Story;
 import com.storypass.storypass.repository.GameRoomRepository;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,6 +29,13 @@ public class GameRoomService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public GameRoomDto getRoomById(Long id) {
+        GameRoom foundRoom = roomRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Game room with ID " + id + " not found"));
+        return convertToDTO(foundRoom);
+    }
+
     @Transactional
     public GameRoomDto createNewRoom(CreateRoomRequest roomRequest) {
         GameRoom newRoom = convertToEntity(roomRequest);
@@ -39,8 +48,6 @@ public class GameRoomService {
 
         return convertToDTO(newRoom);
     }
-
-
 
     //convert GameRoomDTO to GameRoom entity
     private GameRoom convertToEntity(CreateRoomRequest roomRequest) {
