@@ -42,25 +42,24 @@ public class GameRoomService {
     //convert GameRoomDTO to GameRoom entity
     private GameRoom convertToEntity(CreateRoomRequest roomRequest) {
         GameRoom gameRoom = new GameRoom();
-        gameRoom.setTitle(roomRequest.getTitle());
-        gameRoom.setRoomCode(roomRequest.getRoomCode());
+        gameRoom.setTitle(roomRequest.title());
+        gameRoom.setRoomCode(roomRequest.roomCode());
         gameRoom.setPublic(roomRequest.isPublic());
-        gameRoom.setMaxPlayers(roomRequest.getMaxPlayers());
-        gameRoom.setTimeLimitPerTurnInSeconds(roomRequest.getTimeLimitPerTurnInSeconds());
-        gameRoom.setTurnsPerPlayer(roomRequest.getTurnsPerPlayer());
+        gameRoom.setMaxPlayers(roomRequest.maxPlayers());
+        gameRoom.setTimeLimitPerTurnInSeconds(roomRequest.timeLimitPerTurnInSeconds());
+        gameRoom.setTurnsPerPlayer(roomRequest.turnsPerPlayer());
 
         return gameRoom;
     }
 
     //convert GameRoom entity to GameRoomDTO
     private GameRoomDto convertToDTO(GameRoom gameRoom) {
-        GameRoomDto dto = new GameRoomDto();
-        dto.setId(gameRoom.getId());
-        dto.setTitle(gameRoom.getTitle());
-        dto.setPublic(gameRoom.isPublic());
-        dto.setMaxPlayers(gameRoom.getMaxPlayers());
-        dto.setCurrentPlayerCount(gameRoom.getCurrentPlayerCount());
-
-        return dto;
+        return new GameRoomDto(
+                gameRoom.getId(),
+                gameRoom.getTitle(),
+                gameRoom.isPublic(),
+                gameRoom.getMaxPlayers(),
+                gameRoom.getCurrentPlayerCount()
+                );
     }
 }
