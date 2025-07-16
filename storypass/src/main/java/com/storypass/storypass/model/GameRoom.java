@@ -24,6 +24,7 @@ public class GameRoom {
     private Status status;
 
     private int maxPlayers;
+    private int currentPlayerCount;
     private int timeLimitPerTurnInSeconds;
     private int turnsPerPlayer;
 
@@ -55,6 +56,8 @@ public class GameRoom {
     public void setStatus(Status status) { this.status = status; }
     public int getMaxPlayers() { return maxPlayers; }
     public void setMaxPlayers(int maxPlayers) { this.maxPlayers = maxPlayers; }
+    public int getCurrentPlayerCount() { return currentPlayerCount; }
+    public void setCurrentPlayerCount(int currentPlayerCount) { this.currentPlayerCount = currentPlayerCount; }
     public int getTimeLimitPerTurnInSeconds() { return timeLimitPerTurnInSeconds; }
     public void setTimeLimitPerTurnInSeconds(int timeLimitPerTurnInSeconds) { this.timeLimitPerTurnInSeconds = timeLimitPerTurnInSeconds; }
     public int getTurnsPerPlayer() { return turnsPerPlayer; }
