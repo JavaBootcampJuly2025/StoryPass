@@ -19,7 +19,8 @@ public record CreateRoomRequest(
         int maxPlayers,
 
         @NotNull(message = "Time limit must be specified")
-        @Min(value = 60, message = "Time limit must be at least 60 seconds")
+        @Min(value = 20, message = "Time limit must be at least 20 seconds")
+        @Max(value = 120, message = "Time limit can't exceed 120 seconds")
         int timeLimitPerTurnInSeconds,
 
         @NotNull(message = "Number of turns must be specified")
