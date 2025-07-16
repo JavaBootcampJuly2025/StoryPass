@@ -11,7 +11,6 @@ public class CreateRoomRequest {
     @NotNull(message = "Privacy setting is required")
     private boolean isPublic;
 
-
     @Pattern(regexp = "^\\d{4}$", message = "Room code must be a 4-digit number")
     private String roomCode;
 
@@ -22,7 +21,7 @@ public class CreateRoomRequest {
 
     @NotNull(message = "Time limit must be specified")
     @Min(value = 60, message = "Time limit must be at least 60 seconds")
-    // ВАЖНО: В сервисе нужно будет дополнительно проверить, что значение равно 60, 90 или 120.
+    // IMPORTANT: The service will need to additionally check that the value is 60, 90 or 120.
     private int timeLimitPerTurnInSeconds;
 
     @NotNull(message = "Number of turns must be specified")
