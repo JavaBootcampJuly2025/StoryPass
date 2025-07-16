@@ -3,10 +3,9 @@ package com.storypass.storypass.controller;
 import com.storypass.storypass.dto.CreateRoomRequest;
 import com.storypass.storypass.dto.GameRoomDto;
 import com.storypass.storypass.service.GameRoomService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/rooms")
@@ -21,5 +20,10 @@ public class GameRoomController {
     @PostMapping
     public GameRoomDto createGameRoom(@RequestBody CreateRoomRequest roomRequest) {
         return gameRoomService.createNewRoom(roomRequest);
+    }
+
+    @GetMapping
+    public List<GameRoomDto> getGameRooms() {
+        return gameRoomService.getAllRooms();
     }
 }

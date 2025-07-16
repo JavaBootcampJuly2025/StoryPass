@@ -4,12 +4,12 @@ import com.storypass.storypass.dto.CreateRoomRequest;
 import com.storypass.storypass.dto.GameRoomDto;
 import com.storypass.storypass.model.GameRoom;
 import com.storypass.storypass.model.Story;
-import com.storypass.storypass.model.User;
 import com.storypass.storypass.repository.GameRoomRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class GameRoomService {
@@ -20,8 +20,11 @@ public class GameRoomService {
         this.roomRepository = roomRepository;
     }
 
-    public List<GameRoom> getAllRooms() {
-        return roomRepository.findAll();
+    // return a list of GameRoomDTOs each being converted from game room entities
+    public List<GameRoomDto> getAllRooms() {
+        return roomRepository.findAll().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
     @Transactional
