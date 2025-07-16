@@ -2,6 +2,7 @@ package com.storypass.storypass.service;
 
 import com.storypass.storypass.model.User;
 import com.storypass.storypass.repository.UserRepository;
+import com.storypass.storypass.security.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -13,11 +14,13 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     @Autowired
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     public void register(String login, String password, String nickname) {
@@ -39,9 +42,11 @@ public class AuthService {
         userRepository.save(user);
     }
 
-    public boolean login(String login, String password) {
+    public String login(String login, String password) {
         Optional<User> userOpt = userRepository.findByLogin(login);
-        return userOpt.isPresent() &&
-                passwordEncoder.matches(password, userOpt.get().getPassword());
+        if (userOpt.isPresent() && passwordEncoder.matches(password, userOpt.get().getPassword())) {
+            return jwtService.generateToken(login);
+        }
+        throw new RuntimeException("Invalid credentials");
     }
 }
