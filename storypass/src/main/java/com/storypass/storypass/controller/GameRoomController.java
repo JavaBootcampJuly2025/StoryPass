@@ -23,6 +23,11 @@ public class GameRoomController {
         return gameRoomService.createNewRoom(roomRequest);
     }
 
+    @DeleteMapping("/{id}")
+    public void deleteRoomById(@PathVariable Long id) {
+        gameRoomService.deleteRoomById(id);
+    }
+
     @GetMapping
     public List<GameRoomDto> getGameRooms() {
         return gameRoomService.getAllRooms();
@@ -31,6 +36,12 @@ public class GameRoomController {
     @GetMapping("/{id}")
     public ResponseEntity<GameRoomDto> getRoomById(@PathVariable Long id) {
         GameRoomDto gameRoomDTO = gameRoomService.getRoomById(id);
+        return ResponseEntity.ok(gameRoomDTO);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<GameRoomDto> updateRoom(@PathVariable Long id, @RequestBody CreateRoomRequest roomRequest) {
+        GameRoomDto gameRoomDTO = gameRoomService.updateRoomById(id, roomRequest);
         return ResponseEntity.ok(gameRoomDTO);
     }
 }

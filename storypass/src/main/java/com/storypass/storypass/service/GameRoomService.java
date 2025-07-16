@@ -4,6 +4,7 @@ import com.storypass.storypass.dto.CreateRoomRequest;
 import com.storypass.storypass.dto.GameRoomDto;
 import com.storypass.storypass.exception.ResourceNotFoundException;
 import com.storypass.storypass.model.GameRoom;
+import com.storypass.storypass.model.Status;
 import com.storypass.storypass.model.Story;
 import com.storypass.storypass.repository.GameRoomRepository;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,27 @@ public class GameRoomService {
         this.roomRepository = roomRepository;
     }
 
-    // return a list of GameRoomDTOs each being converted from game room entities
+    // CREATE / DELETE
+    @Transactional
+    public GameRoomDto createNewRoom(CreateRoomRequest roomRequest) {
+        GameRoom newRoom = convertToEntity(roomRequest);
+
+        // give the room a new default story
+        Story story = new Story();
+        newRoom.setStory(story);
+
+        newRoom.setStatus(Status.WAITING_FOR_PLAYERS);
+
+        roomRepository.save(newRoom);
+
+        return convertToDTO(newRoom);
+    }
+
+    public void deleteRoomById(Long id) {
+        roomRepository.deleteById(id);
+    }
+
+    // GET ALL / GET BY ID
     public List<GameRoomDto> getAllRooms() {
         return roomRepository.findAll().stream()
                 .map(this::convertToDTO)
@@ -36,17 +57,12 @@ public class GameRoomService {
         return convertToDTO(foundRoom);
     }
 
-    @Transactional
-    public GameRoomDto createNewRoom(CreateRoomRequest roomRequest) {
-        GameRoom newRoom = convertToEntity(roomRequest);
-
-        // give the room a new default story
-        Story story = new Story();
-        newRoom.setStory(story);
-
-        roomRepository.save(newRoom);
-
-        return convertToDTO(newRoom);
+    // UPDATE
+    public GameRoomDto updateRoomById(Long id, CreateRoomRequest roomRequest) {
+        GameRoom updatedRoom = convertToEntity(roomRequest);
+        updatedRoom.setId(id);
+        roomRepository.save(updatedRoom);
+        return convertToDTO(updatedRoom);
     }
 
     //convert GameRoomDTO to GameRoom entity
