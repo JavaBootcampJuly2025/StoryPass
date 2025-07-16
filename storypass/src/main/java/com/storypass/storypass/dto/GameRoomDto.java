@@ -8,6 +8,8 @@ public class GameRoomDto {
     private int maxPlayers;
 
     // Constructors, Getters and Setters
+    public GameRoomDto() {}
+
     public GameRoomDto(Long id, String title, boolean isPublic, int currentPlayerCount, int maxPlayers) {
         this.id = id;
         this.title = title;

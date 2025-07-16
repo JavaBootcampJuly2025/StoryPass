@@ -1,0 +1,66 @@
+package com.storypass.storypass.service;
+
+import com.storypass.storypass.dto.CreateRoomRequest;
+import com.storypass.storypass.dto.GameRoomDto;
+import com.storypass.storypass.model.GameRoom;
+import com.storypass.storypass.model.Story;
+import com.storypass.storypass.model.User;
+import com.storypass.storypass.repository.GameRoomRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Service
+public class GameRoomService {
+
+    private final GameRoomRepository roomRepository;
+
+    public GameRoomService(GameRoomRepository roomRepository) {
+        this.roomRepository = roomRepository;
+    }
+
+    public List<GameRoom> getAllRooms() {
+        return roomRepository.findAll();
+    }
+
+    @Transactional
+    public GameRoomDto createNewRoom(CreateRoomRequest roomRequest) {
+        GameRoom newRoom = convertToEntity(roomRequest);
+
+        // give the room a new default story
+        Story story = new Story();
+        newRoom.setStory(story);
+
+        roomRepository.save(newRoom);
+
+        return convertToDTO(newRoom);
+    }
+
+
+
+    //convert GameRoomDTO to GameRoom entity
+    private GameRoom convertToEntity(CreateRoomRequest roomRequest) {
+        GameRoom gameRoom = new GameRoom();
+        gameRoom.setTitle(roomRequest.getTitle());
+        gameRoom.setRoomCode(roomRequest.getRoomCode());
+        gameRoom.setPublic(roomRequest.isPublic());
+        gameRoom.setMaxPlayers(roomRequest.getMaxPlayers());
+        gameRoom.setTimeLimitPerTurnInSeconds(roomRequest.getTimeLimitPerTurnInSeconds());
+        gameRoom.setTurnsPerPlayer(roomRequest.getTurnsPerPlayer());
+
+        return gameRoom;
+    }
+
+    //convert GameRoom entity to GameRoomDTO
+    private GameRoomDto convertToDTO(GameRoom gameRoom) {
+        GameRoomDto dto = new GameRoomDto();
+        dto.setId(gameRoom.getId());
+        dto.setTitle(gameRoom.getTitle());
+        dto.setPublic(gameRoom.isPublic());
+        dto.setMaxPlayers(gameRoom.getMaxPlayers());
+        dto.setCurrentPlayerCount(gameRoom.getCurrentPlayerCount());
+
+        return dto;
+    }
+}
