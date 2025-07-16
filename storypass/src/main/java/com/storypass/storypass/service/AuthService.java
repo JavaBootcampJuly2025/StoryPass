@@ -1,13 +1,15 @@
 package com.storypass.storypass.service;
 
+import com.storypass.storypass.dto.LoginRequest;
+import com.storypass.storypass.dto.RegistrationRequest;
+import com.storypass.storypass.exception.DuplicateResourceException;
+import com.storypass.storypass.exception.ResourceNotFoundException;
 import com.storypass.storypass.model.User;
 import com.storypass.storypass.repository.UserRepository;
 import com.storypass.storypass.security.JwtService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AuthService {
@@ -16,37 +18,39 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
-    @Autowired
     public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
     }
 
-    public void register(String login, String password, String nickname) {
-        Optional<User> existingByLogin = userRepository.findByLogin(login);
-        if (existingByLogin.isPresent()) {
-            throw new RuntimeException("Login already taken");
-        }
+    @Transactional
+    public void register(RegistrationRequest request) {
+        userRepository.findByLogin(request.login()).ifPresent(user -> {
+            throw new DuplicateResourceException("A user with the login '" + request.login() + "' already exists."); // <-- ИЗМЕНЕНИЕ
+        });
 
-        Optional<User> existingByNickname = userRepository.findByNickname(nickname);
-        if (existingByNickname.isPresent()) {
-            throw new RuntimeException("Nickname already taken");
-        }
+        userRepository.findByNickname(request.nickname()).ifPresent(user -> {
+            throw new DuplicateResourceException("A user with the nickname '" + request.nickname() + "' already exists."); // <-- ИЗМЕНЕНИЕ
+        });
 
         User user = new User();
-        user.setLogin(login);
-        user.setPassword(passwordEncoder.encode(password));
-        user.setNickname(nickname);
+        user.setLogin(request.login());
+        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setNickname(request.nickname());
 
         userRepository.save(user);
     }
 
-    public String login(String login, String password) {
-        Optional<User> userOpt = userRepository.findByLogin(login);
-        if (userOpt.isPresent() && passwordEncoder.matches(password, userOpt.get().getPassword())) {
-            return jwtService.generateToken(login);
+    @Transactional(readOnly = true)
+    public String login(LoginRequest request) {
+        User user = userRepository.findByLogin(request.login())
+                .orElseThrow(() -> new ResourceNotFoundException("Incorrect login or password."));
+
+        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
+            throw new ResourceNotFoundException("Incorrect login or password.");
         }
-        throw new RuntimeException("Invalid credentials");
+
+        return jwtService.generateToken(user.getLogin());
     }
 }
