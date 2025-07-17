@@ -34,5 +34,6 @@ build/
 
 ### Environment files ###
 .env
+db.env
 
 application.properties
