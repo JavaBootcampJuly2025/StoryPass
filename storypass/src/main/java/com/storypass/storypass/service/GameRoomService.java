@@ -22,19 +22,13 @@ public class GameRoomService {
         this.roomRepository = roomRepository;
     }
 
-    // CREATE / DELETE
     @Transactional
     public GameRoomDto createNewRoom(CreateRoomRequest roomRequest) {
         GameRoom newRoom = convertToEntity(roomRequest);
-
-        // give the room a new default story
         Story story = new Story();
         newRoom.setStory(story);
-
         newRoom.setStatus(Status.WAITING_FOR_PLAYERS);
-
         roomRepository.save(newRoom);
-
         return convertToDTO(newRoom);
     }
 
@@ -42,7 +36,6 @@ public class GameRoomService {
         roomRepository.deleteById(id);
     }
 
-    // GET ALL / GET BY ID
     public List<GameRoomDto> getAllRooms() {
         return roomRepository.findAll().stream()
                 .map(this::convertToDTO)
@@ -57,14 +50,23 @@ public class GameRoomService {
     }
 
     // UPDATE
+    @Transactional
     public GameRoomDto updateRoomById(Long id, CreateRoomRequest roomRequest) {
-        GameRoom updatedRoom = convertToEntity(roomRequest);
-        updatedRoom.setId(id);
-        roomRepository.save(updatedRoom);
+        GameRoom roomToUpdate = roomRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Game room with ID " + id + " not found"));
+
+        roomToUpdate.setTitle(roomRequest.title());
+        roomToUpdate.setRoomCode(roomRequest.roomCode());
+        roomToUpdate.setPublic(roomRequest.isPublic());
+        roomToUpdate.setMaxPlayers(roomRequest.maxPlayers());
+        roomToUpdate.setTimeLimitPerTurnInSeconds(roomRequest.timeLimitPerTurnInSeconds());
+        roomToUpdate.setTurnsPerPlayer(roomRequest.turnsPerPlayer());
+
+        GameRoom updatedRoom = roomRepository.save(roomToUpdate);
+
         return convertToDTO(updatedRoom);
     }
 
-    //convert GameRoomDTO to GameRoom entity
     private GameRoom convertToEntity(CreateRoomRequest roomRequest) {
         GameRoom gameRoom = new GameRoom();
         gameRoom.setTitle(roomRequest.title());
@@ -73,11 +75,9 @@ public class GameRoomService {
         gameRoom.setMaxPlayers(roomRequest.maxPlayers());
         gameRoom.setTimeLimitPerTurnInSeconds(roomRequest.timeLimitPerTurnInSeconds());
         gameRoom.setTurnsPerPlayer(roomRequest.turnsPerPlayer());
-
         return gameRoom;
     }
 
-    //convert GameRoom entity to GameRoomDTO
     private GameRoomDto convertToDTO(GameRoom gameRoom) {
         return new GameRoomDto(
                 gameRoom.getId(),
@@ -85,6 +85,6 @@ public class GameRoomService {
                 gameRoom.isPublic(),
                 gameRoom.getMaxPlayers(),
                 gameRoom.getCurrentPlayerCount()
-                );
+        );
     }
 }

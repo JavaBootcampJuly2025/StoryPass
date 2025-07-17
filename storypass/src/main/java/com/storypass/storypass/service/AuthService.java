@@ -1,5 +1,6 @@
 package com.storypass.storypass.service;
 
+import com.storypass.storypass.dto.AuthResponse;
 import com.storypass.storypass.dto.LoginRequest;
 import com.storypass.storypass.dto.RegistrationRequest;
 import com.storypass.storypass.exception.DuplicateResourceException;
@@ -27,30 +28,30 @@ public class AuthService {
     @Transactional
     public void register(RegistrationRequest request) {
         userRepository.findByLogin(request.login()).ifPresent(user -> {
-            throw new DuplicateResourceException("A user with the login '" + request.login() + "' already exists."); // <-- ИЗМЕНЕНИЕ
+            throw new DuplicateResourceException("A user with the login '" + request.login() + "' already exists.");
         });
 
         userRepository.findByNickname(request.nickname()).ifPresent(user -> {
-            throw new DuplicateResourceException("A user with the nickname '" + request.nickname() + "' already exists."); // <-- ИЗМЕНЕНИЕ
+            throw new DuplicateResourceException("A user with the nickname '" + request.nickname() + "' already exists.");
         });
 
         User user = new User();
         user.setLogin(request.login());
         user.setPassword(passwordEncoder.encode(request.password()));
         user.setNickname(request.nickname());
-
         userRepository.save(user);
     }
 
     @Transactional(readOnly = true)
-    public String login(LoginRequest request) {
+    public AuthResponse login(LoginRequest request) {
         User user = userRepository.findByLogin(request.login())
                 .orElseThrow(() -> new ResourceNotFoundException("Incorrect login or password."));
 
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
             throw new ResourceNotFoundException("Incorrect login or password.");
         }
+        String token = jwtService.generateToken(user.getLogin());
 
-        return jwtService.generateToken(user.getLogin());
+        return new AuthResponse(token, user.getNickname());
     }
 }

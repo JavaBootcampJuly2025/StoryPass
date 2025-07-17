@@ -26,18 +26,13 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-
     public ResponseEntity<Map<String, String>> register(@Valid @RequestBody RegistrationRequest request) {
         authService.register(request);
-
         return ResponseEntity.ok(Map.of("message", "User registered successfully!"));
     }
 
     @PostMapping("/login")
-
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
-        String jwt = authService.login(request);
-
-        return ResponseEntity.ok(new AuthResponse(jwt, ""));
+        return ResponseEntity.ok(authService.login(request));
     }
 }
