@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lobby</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div class="card">
+  <h1>Lobby</h1>
+
+  <div id="room-list">
+    <h3>Public Rooms</h3>
+    <ul id="rooms">
+      <!-- Will be dynamically populated -->
+    </ul>
+  </div>
+
+  <button onclick="createRoom()">Create Room</button>
+  <button onclick="joinRoom()">Join Room</button>
+</div>
+
+<script src="/js/lobby.js"></script>
+</body>
+</html>
