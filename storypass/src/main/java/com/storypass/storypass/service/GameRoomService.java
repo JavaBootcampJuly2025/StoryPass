@@ -2,14 +2,16 @@ package com.storypass.storypass.service;
 
 import com.storypass.storypass.dto.CreateRoomRequest;
 import com.storypass.storypass.dto.GameRoomDto;
+import com.storypass.storypass.exception.ResourceNotFoundException;
 import com.storypass.storypass.model.GameRoom;
+import com.storypass.storypass.model.Status;
 import com.storypass.storypass.model.Story;
-import com.storypass.storypass.model.User;
 import com.storypass.storypass.repository.GameRoomRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class GameRoomService {
@@ -20,10 +22,7 @@ public class GameRoomService {
         this.roomRepository = roomRepository;
     }
 
-    public List<GameRoom> getAllRooms() {
-        return roomRepository.findAll();
-    }
-
+    // CREATE / DELETE
     @Transactional
     public GameRoomDto createNewRoom(CreateRoomRequest roomRequest) {
         GameRoom newRoom = convertToEntity(roomRequest);
@@ -32,35 +31,60 @@ public class GameRoomService {
         Story story = new Story();
         newRoom.setStory(story);
 
+        newRoom.setStatus(Status.WAITING_FOR_PLAYERS);
+
         roomRepository.save(newRoom);
 
         return convertToDTO(newRoom);
     }
 
+    public void deleteRoomById(Long id) {
+        roomRepository.deleteById(id);
+    }
 
+    // GET ALL / GET BY ID
+    public List<GameRoomDto> getAllRooms() {
+        return roomRepository.findAll().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public GameRoomDto getRoomById(Long id) {
+        GameRoom foundRoom = roomRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Game room with ID " + id + " not found"));
+        return convertToDTO(foundRoom);
+    }
+
+    // UPDATE
+    public GameRoomDto updateRoomById(Long id, CreateRoomRequest roomRequest) {
+        GameRoom updatedRoom = convertToEntity(roomRequest);
+        updatedRoom.setId(id);
+        roomRepository.save(updatedRoom);
+        return convertToDTO(updatedRoom);
+    }
 
     //convert GameRoomDTO to GameRoom entity
     private GameRoom convertToEntity(CreateRoomRequest roomRequest) {
         GameRoom gameRoom = new GameRoom();
-        gameRoom.setTitle(roomRequest.getTitle());
-        gameRoom.setRoomCode(roomRequest.getRoomCode());
+        gameRoom.setTitle(roomRequest.title());
+        gameRoom.setRoomCode(roomRequest.roomCode());
         gameRoom.setPublic(roomRequest.isPublic());
-        gameRoom.setMaxPlayers(roomRequest.getMaxPlayers());
-        gameRoom.setTimeLimitPerTurnInSeconds(roomRequest.getTimeLimitPerTurnInSeconds());
-        gameRoom.setTurnsPerPlayer(roomRequest.getTurnsPerPlayer());
+        gameRoom.setMaxPlayers(roomRequest.maxPlayers());
+        gameRoom.setTimeLimitPerTurnInSeconds(roomRequest.timeLimitPerTurnInSeconds());
+        gameRoom.setTurnsPerPlayer(roomRequest.turnsPerPlayer());
 
         return gameRoom;
     }
 
     //convert GameRoom entity to GameRoomDTO
     private GameRoomDto convertToDTO(GameRoom gameRoom) {
-        GameRoomDto dto = new GameRoomDto();
-        dto.setId(gameRoom.getId());
-        dto.setTitle(gameRoom.getTitle());
-        dto.setPublic(gameRoom.isPublic());
-        dto.setMaxPlayers(gameRoom.getMaxPlayers());
-        dto.setCurrentPlayerCount(gameRoom.getCurrentPlayerCount());
-
-        return dto;
+        return new GameRoomDto(
+                gameRoom.getId(),
+                gameRoom.getTitle(),
+                gameRoom.isPublic(),
+                gameRoom.getMaxPlayers(),
+                gameRoom.getCurrentPlayerCount()
+                );
     }
 }
