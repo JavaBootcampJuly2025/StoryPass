@@ -2,6 +2,7 @@ package com.storypass.storypass.controller;
 
 import com.storypass.storypass.dto.CreateRoomRequest;
 import com.storypass.storypass.dto.GameRoomDto;
+import com.storypass.storypass.dto.GameStateDto;
 import com.storypass.storypass.service.GameRoomService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -43,5 +44,11 @@ public class GameRoomController {
     public ResponseEntity<GameRoomDto> updateRoom(@PathVariable Long id, @RequestBody CreateRoomRequest roomRequest) {
         GameRoomDto gameRoomDTO = gameRoomService.updateRoomById(id, roomRequest);
         return ResponseEntity.ok(gameRoomDTO);
+    }
+
+    @GetMapping("/{id}/state")
+    public ResponseEntity<GameStateDto> getGameState(@PathVariable Long id) {
+        GameStateDto gameStateDto = gameRoomService.getGameState(id);
+        return ResponseEntity.ok(gameStateDto);
     }
 }
