@@ -42,4 +42,14 @@ public class GameRoom {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private Set<User> players = new HashSet<>();
+
+
+
+
+
+    @ManyToOne
+    @JoinColumn(name = "current_player_id")
+    private User currentPlayer;
+
+    private int timeLeftForCurrentTurnInSeconds;
 }
