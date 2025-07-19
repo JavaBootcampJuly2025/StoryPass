@@ -3,9 +3,12 @@ package com.storypass.storypass.controller;
 import com.storypass.storypass.dto.CreateRoomRequest;
 import com.storypass.storypass.dto.GameRoomDto;
 import com.storypass.storypass.dto.GameStateDto;
+import com.storypass.storypass.model.User;
 import com.storypass.storypass.service.GameRoomService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import java.util.Optional;
 
 import java.util.List;
 
@@ -43,6 +46,15 @@ public class GameRoomController {
     @PutMapping("/{id}")
     public ResponseEntity<GameRoomDto> updateRoom(@PathVariable Long id, @RequestBody CreateRoomRequest roomRequest) {
         GameRoomDto gameRoomDTO = gameRoomService.updateRoomById(id, roomRequest);
+        return ResponseEntity.ok(gameRoomDTO);
+    }
+
+    @PostMapping("/{id}/join")
+    public ResponseEntity<GameRoomDto> joinRoom(@PathVariable Long id,
+                                                @AuthenticationPrincipal User user,
+                                                @RequestParam(required = false) String roomCode) {
+
+        GameRoomDto gameRoomDTO = gameRoomService.joinRoom(id, user, Optional.ofNullable(roomCode));
         return ResponseEntity.ok(gameRoomDTO);
     }
 

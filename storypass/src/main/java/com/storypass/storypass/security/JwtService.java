@@ -29,7 +29,7 @@ public class JwtService {
         return Jwts.builder()
                 .setSubject(login)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // Token expiration time is 1 hour
                 .signWith(this.key, SignatureAlgorithm.HS256)
                 .compact();
     }
