@@ -7,11 +7,13 @@ import com.storypass.storypass.exception.ResourceNotFoundException;
 import com.storypass.storypass.model.GameRoom;
 import com.storypass.storypass.model.Status;
 import com.storypass.storypass.model.Story;
+import com.storypass.storypass.model.User;
 import com.storypass.storypass.repository.GameRoomRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,8 +35,8 @@ public class GameRoomService {
         return convertToDTO(newRoom);
     }
 
-    public void deleteRoomById(Long id) {
-        roomRepository.deleteById(id);
+    public void deleteRoomById(Long roomId) {
+        roomRepository.deleteById(roomId);
     }
 
     public List<GameRoomDto> getAllRooms() {
@@ -44,16 +46,16 @@ public class GameRoomService {
     }
 
     @Transactional(readOnly = true)
-    public GameRoomDto getRoomById(Long id) {
-        GameRoom foundRoom = roomRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Game room with ID " + id + " not found"));
+    public GameRoomDto getRoomById(Long roomId) {
+        GameRoom foundRoom = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Game room with ID " + roomId + " not found"));
         return convertToDTO(foundRoom);
     }
 
     @Transactional
-    public GameRoomDto updateRoomById(Long id, CreateRoomRequest roomRequest) {
-        GameRoom roomToUpdate = roomRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Game room with ID " + id + " not found"));
+    public GameRoomDto updateRoomById(Long roomId, CreateRoomRequest roomRequest) {
+        GameRoom roomToUpdate = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Game room with ID " + roomId + " not found"));
 
         roomToUpdate.setTitle(roomRequest.title());
         roomToUpdate.setRoomCode(roomRequest.roomCode());
@@ -85,6 +87,36 @@ public class GameRoomService {
         return new GameStateDto(lastLine, currentPlayerNickname, timeLeft);
     }
 
+    @Transactional
+    public GameRoomDto joinRoom(Long roomId, User user, Optional<String> roomCode) {
+
+        GameRoom room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Game room with ID " + roomId + " not found"));;
+
+        if (!room.isPublic() && roomCode.isEmpty() ) {
+            throw new IllegalStateException("Room is not a public room");
+        }
+        if (!room.getStatus().equals(Status.WAITING_FOR_PLAYERS)) {
+            throw new IllegalStateException("Room is not waiting for new players");
+        }
+        if (!room.isPublic() && !room.getRoomCode().equals(roomCode.get())) {
+            throw new IllegalStateException("Room code is incorrect");
+        }
+        if (room.getCurrentPlayerCount() < room.getMaxPlayers()) {
+            throw new IllegalStateException("Room is full");
+        }
+        if(room.getPlayers().contains(user)) {
+            throw new IllegalStateException("User is already in the room");
+        }
+
+        room.getPlayers().add(user);
+        room.setCurrentPlayerCount(room.getCurrentPlayerCount() + 1);
+
+        GameRoom updatedRoom = roomRepository.save(room);
+        return convertToDTO(updatedRoom);
+
+    }
+
     private GameRoom convertToEntity(CreateRoomRequest roomRequest) {
         GameRoom gameRoom = new GameRoom();
         gameRoom.setTitle(roomRequest.title());
@@ -101,8 +133,10 @@ public class GameRoomService {
                 gameRoom.getId(),
                 gameRoom.getTitle(),
                 gameRoom.isPublic(),
+                gameRoom.getCurrentPlayerCount(),
                 gameRoom.getMaxPlayers(),
-                gameRoom.getCurrentPlayerCount()
+                gameRoom.getTimeLimitPerTurnInSeconds(),
+                gameRoom.getTurnsPerPlayer()
         );
     }
 }
