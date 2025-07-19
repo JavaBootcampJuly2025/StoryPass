@@ -8,7 +8,6 @@ import com.storypass.storypass.service.GameRoomService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import java.util.Optional;
 
 import java.util.List;
 
@@ -23,8 +22,9 @@ public class GameRoomController {
     }
 
     @PostMapping
-    public GameRoomDto createGameRoom(@RequestBody CreateRoomRequest roomRequest) {
-        return gameRoomService.createNewRoom(roomRequest);
+    public GameRoomDto createGameRoom(@RequestBody CreateRoomRequest roomRequest,
+                                      @AuthenticationPrincipal User creator) {
+        return gameRoomService.createNewRoom(roomRequest, creator);
     }
 
     @DeleteMapping("/{id}")
@@ -51,10 +51,9 @@ public class GameRoomController {
 
     @PostMapping("/{id}/join")
     public ResponseEntity<GameRoomDto> joinRoom(@PathVariable Long id,
-                                                @AuthenticationPrincipal User user,
-                                                @RequestParam(required = false) String roomCode) {
+                                                @AuthenticationPrincipal User user) {
 
-        GameRoomDto gameRoomDTO = gameRoomService.joinRoom(id, user, Optional.ofNullable(roomCode));
+        GameRoomDto gameRoomDTO = gameRoomService.joinPublicRoom(id, user);
         return ResponseEntity.ok(gameRoomDTO);
     }
 
