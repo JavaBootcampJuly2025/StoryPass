@@ -5,5 +5,6 @@ public record GameRoomDto(Long id,
                           boolean isPublic,
                           int currentPlayerCount,
                           int maxPlayers,
+                          String ownerNickname,
                           int timeLimitPerTurnInSeconds,
                           int turnsPerPlayer) {}

@@ -3,7 +3,7 @@ package com.storypass.storypass.service;
 import com.storypass.storypass.dto.CreateRoomRequest;
 import com.storypass.storypass.dto.GameRoomDto;
 import com.storypass.storypass.dto.GameStateDto;
-import com.storypass.storypass.exception.ResourceNotFoundException;
+import com.storypass.storypass.exception.*;
 import com.storypass.storypass.model.GameRoom;
 import com.storypass.storypass.model.Status;
 import com.storypass.storypass.model.Story;
@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,11 +25,20 @@ public class GameRoomService {
     }
 
     @Transactional
-    public GameRoomDto createNewRoom(CreateRoomRequest roomRequest) {
+    public GameRoomDto createNewRoom(CreateRoomRequest roomRequest,
+                                     User owner) {
         GameRoom newRoom = convertToEntity(roomRequest);
+
+        // add the owner and add him as a player
+        newRoom.setOwner(owner);
+        newRoom.getPlayers().add(owner);
+        newRoom.setCurrentPlayerCount(1);
+        newRoom.setCurrentPlayer(owner);
+
         Story story = new Story();
         newRoom.setStory(story);
         newRoom.setStatus(Status.WAITING_FOR_PLAYERS);
+
         roomRepository.save(newRoom);
         return convertToDTO(newRoom);
     }
@@ -88,25 +96,22 @@ public class GameRoomService {
     }
 
     @Transactional
-    public GameRoomDto joinRoom(Long roomId, User user, Optional<String> roomCode) {
+    public GameRoomDto joinPublicRoom(Long roomId, User user) {
 
         GameRoom room = roomRepository.findById(roomId)
-                .orElseThrow(() -> new ResourceNotFoundException("Game room with ID " + roomId + " not found"));;
+                .orElseThrow(() -> new ResourceNotFoundException("Game room with ID " + roomId + " not found"));
 
-        if (!room.isPublic() && roomCode.isEmpty() ) {
-            throw new IllegalStateException("Room is not a public room");
+        if (!room.isPublic()) {
+            throw new NoAccessException("Room is not a public room"); // this shouldn't even ever get triggered
         }
         if (!room.getStatus().equals(Status.WAITING_FOR_PLAYERS)) {
-            throw new IllegalStateException("Room is not waiting for new players");
+            throw new CurrentStatusException("Room is not waiting for new players");
         }
-        if (!room.isPublic() && !room.getRoomCode().equals(roomCode.get())) {
-            throw new IllegalStateException("Room code is incorrect");
+        if (room.getCurrentPlayerCount() >= room.getMaxPlayers()) {
+            throw new RoomFullException("Room is full");
         }
-        if (room.getCurrentPlayerCount() < room.getMaxPlayers()) {
-            throw new IllegalStateException("Room is full");
-        }
-        if(room.getPlayers().contains(user)) {
-            throw new IllegalStateException("User is already in the room");
+        if(room.getPlayers().stream().map(User::getId).collect(Collectors.toSet()).contains(user.getId())) {
+            throw new DuplicateResourceException("User is already in the room"); // not sure if I can use this exception type here
         }
 
         room.getPlayers().add(user);
@@ -114,7 +119,6 @@ public class GameRoomService {
 
         GameRoom updatedRoom = roomRepository.save(room);
         return convertToDTO(updatedRoom);
-
     }
 
     private GameRoom convertToEntity(CreateRoomRequest roomRequest) {
@@ -135,6 +139,7 @@ public class GameRoomService {
                 gameRoom.isPublic(),
                 gameRoom.getCurrentPlayerCount(),
                 gameRoom.getMaxPlayers(),
+                gameRoom.getOwner().getNickname(),
                 gameRoom.getTimeLimitPerTurnInSeconds(),
                 gameRoom.getTurnsPerPlayer()
         );
