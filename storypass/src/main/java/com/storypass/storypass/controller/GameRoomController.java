@@ -57,6 +57,14 @@ public class GameRoomController {
         return ResponseEntity.ok(gameRoomDTO);
     }
 
+    @PostMapping("/{id}/leave")
+    public ResponseEntity<GameRoomDto> leaveRoom(@PathVariable Long id,
+                                                @AuthenticationPrincipal User user) {
+
+        GameRoomDto gameRoomDto = gameRoomService.leaveRoom(id, user);
+        return ResponseEntity.ok(gameRoomDto);
+    }
+
     @GetMapping("/{id}/state")
     public ResponseEntity<GameStateDto> getGameState(@PathVariable Long id) {
         GameStateDto gameStateDto = gameRoomService.getGameState(id);
