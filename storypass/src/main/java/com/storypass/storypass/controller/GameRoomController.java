@@ -3,6 +3,7 @@ package com.storypass.storypass.controller;
 import com.storypass.storypass.dto.CreateRoomRequest;
 import com.storypass.storypass.dto.GameRoomDto;
 import com.storypass.storypass.dto.GameStateDto;
+import com.storypass.storypass.dto.JoinPrivateRoomRequest;
 import com.storypass.storypass.model.User;
 import com.storypass.storypass.service.GameRoomService;
 import org.springframework.http.ResponseEntity;
@@ -51,9 +52,10 @@ public class GameRoomController {
 
     @PostMapping("/{id}/join")
     public ResponseEntity<GameRoomDto> joinRoom(@PathVariable Long id,
-                                                @AuthenticationPrincipal User user) {
+                                                @AuthenticationPrincipal User user,
+                                                @RequestBody(required = false) JoinPrivateRoomRequest joinRequest) {
 
-        GameRoomDto gameRoomDTO = gameRoomService.joinPublicRoom(id, user);
+        GameRoomDto gameRoomDTO = gameRoomService.joinRoom(id, user, joinRequest);
         return ResponseEntity.ok(gameRoomDTO);
     }
 

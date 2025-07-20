@@ -3,6 +3,7 @@ package com.storypass.storypass.service;
 import com.storypass.storypass.dto.CreateRoomRequest;
 import com.storypass.storypass.dto.GameRoomDto;
 import com.storypass.storypass.dto.GameStateDto;
+import com.storypass.storypass.dto.JoinPrivateRoomRequest;
 import com.storypass.storypass.exception.*;
 import com.storypass.storypass.model.GameRoom;
 import com.storypass.storypass.model.Status;
@@ -96,13 +97,16 @@ public class GameRoomService {
     }
 
     @Transactional
-    public GameRoomDto joinPublicRoom(Long roomId, User user) {
+    public GameRoomDto joinRoom(Long roomId, User user, JoinPrivateRoomRequest joinRequest) {
 
         GameRoom room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new ResourceNotFoundException("Game room with ID " + roomId + " not found"));
 
-        if (!room.isPublic()) {
-            throw new NoAccessException("Room is not a public room"); // this shouldn't even ever get triggered
+        if (!room.isPublic() && joinRequest == null ) {
+            throw new NoAccessException("Room is private and requires a room code to join");
+        }
+        if (!room.isPublic() && !room.getRoomCode().equals(joinRequest.roomCode())) {
+            throw new NoAccessException("Room code is incorrect");
         }
         if (!room.getStatus().equals(Status.WAITING_FOR_PLAYERS)) {
             throw new CurrentStatusException("Room is not waiting for new players");
