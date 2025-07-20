@@ -30,12 +30,12 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(CurrentStatusException.class)
-    public ResponseEntity<Map<String, String>> handleCurrentStatusException(RoomFullException ex) {
+    public ResponseEntity<Map<String, String>> handleCurrentStatusException(CurrentStatusException ex) {
         return new ResponseEntity<>(Map.of("error", ex.getMessage()), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(NoAccessException.class)
-    public ResponseEntity<Map<String, String>> handleNoAccessException(RoomFullException ex) {
+    public ResponseEntity<Map<String, String>> handleNoAccessException(NoAccessException ex) {
         return new ResponseEntity<>(Map.of("error", ex.getMessage()), HttpStatus.FORBIDDEN);
     }
 
