@@ -29,8 +29,9 @@ public class GameRoomController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteRoomById(@PathVariable Long id) {
-        gameRoomService.deleteRoomById(id);
+    public void deleteRoomById(@PathVariable Long id,
+                               @AuthenticationPrincipal User user) {
+        gameRoomService.deleteRoomById(id, user);
     }
 
     @GetMapping

@@ -44,7 +44,14 @@ public class GameRoomService {
         return convertToDTO(newRoom);
     }
 
-    public void deleteRoomById(Long roomId) {
+    public void deleteRoomById(Long roomId, User user) {
+        GameRoom room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Game room with ID " + roomId + " not found"));
+
+        if(!room.getOwner().equals(user)) {
+            throw new NoAccessException("You are not the owner of this room");
+        }
+
         roomRepository.deleteById(roomId);
     }
 
