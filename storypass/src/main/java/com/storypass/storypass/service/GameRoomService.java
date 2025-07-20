@@ -110,12 +110,31 @@ public class GameRoomService {
         if (room.getCurrentPlayerCount() >= room.getMaxPlayers()) {
             throw new RoomFullException("Room is full");
         }
-        if(room.getPlayers().stream().map(User::getId).collect(Collectors.toSet()).contains(user.getId())) {
+        if(room.getPlayers().contains(user)) {
             throw new DuplicateResourceException("User is already in the room"); // not sure if I can use this exception type here
         }
 
         room.getPlayers().add(user);
         room.setCurrentPlayerCount(room.getCurrentPlayerCount() + 1);
+
+        GameRoom updatedRoom = roomRepository.save(room);
+        return convertToDTO(updatedRoom);
+    }
+
+    @Transactional
+    public GameRoomDto leaveRoom(Long roomId, User user) {
+        GameRoom room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Game room with ID " + roomId + " not found"));
+
+        if(!room.getPlayers().contains(user)) {
+            throw new ResourceNotFoundException("User is not in the room with id: " + roomId);
+        }
+        if(room.getOwner().equals(user) && room.getCurrentPlayerCount() > 1) {
+            throw new CurrentStatusException("Owner cannot leave the room if there are other players");
+        }
+
+        room.getPlayers().remove(user);
+        room.setCurrentPlayerCount(room.getCurrentPlayerCount() - 1);
 
         GameRoom updatedRoom = roomRepository.save(room);
         return convertToDTO(updatedRoom);
