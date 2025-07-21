@@ -3,6 +3,7 @@ package com.storypass.storypass.service;
 import com.storypass.storypass.dto.CreateRoomRequest;
 import com.storypass.storypass.dto.GameRoomDto;
 import com.storypass.storypass.dto.GameStateDto;
+import com.storypass.storypass.exception.ResourceNotFoundException;
 import com.storypass.storypass.dto.JoinPrivateRoomRequest;
 import com.storypass.storypass.exception.*;
 import com.storypass.storypass.model.GameRoom;
@@ -152,6 +153,24 @@ public class GameRoomService {
 
         GameRoom updatedRoom = roomRepository.save(room);
         return convertToDTO(updatedRoom);
+    }
+
+    @Transactional(readOnly = true)
+    public GameStateDto getGameState(Long roomId) {
+        GameRoom room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Game room with ID " + roomId + " not found"));
+
+        String lastLine = room.getStory() != null && room.getStory().getStoryLines() != null && !room.getStory().getStoryLines().isEmpty()
+                ? room.getStory().getStoryLines().get(room.getStory().getStoryLines().size() - 1).getText()
+                : "";
+
+        String currentPlayerNickname = room.getCurrentPlayer() != null
+                ? room.getCurrentPlayer().getNickname()
+                : "";
+
+        int timeLeft = room.getTimeLeftForCurrentTurnInSeconds();
+
+        return new GameStateDto(lastLine, currentPlayerNickname, timeLeft);
     }
 
     private GameRoom convertToEntity(CreateRoomRequest roomRequest) {
