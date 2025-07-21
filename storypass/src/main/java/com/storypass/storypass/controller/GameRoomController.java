@@ -3,8 +3,11 @@ package com.storypass.storypass.controller;
 import com.storypass.storypass.dto.CreateRoomRequest;
 import com.storypass.storypass.dto.GameRoomDto;
 import com.storypass.storypass.dto.GameStateDto;
+import com.storypass.storypass.dto.JoinPrivateRoomRequest;
+import com.storypass.storypass.model.User;
 import com.storypass.storypass.service.GameRoomService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,13 +23,15 @@ public class GameRoomController {
     }
 
     @PostMapping
-    public GameRoomDto createGameRoom(@RequestBody CreateRoomRequest roomRequest) {
-        return gameRoomService.createNewRoom(roomRequest);
+    public GameRoomDto createGameRoom(@RequestBody CreateRoomRequest roomRequest,
+                                      @AuthenticationPrincipal User creator) {
+        return gameRoomService.createNewRoom(roomRequest, creator);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteRoomById(@PathVariable Long id) {
-        gameRoomService.deleteRoomById(id);
+    public void deleteRoomById(@PathVariable Long id,
+                               @AuthenticationPrincipal User user) {
+        gameRoomService.deleteRoomById(id, user);
     }
 
     @GetMapping
@@ -41,9 +46,28 @@ public class GameRoomController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<GameRoomDto> updateRoom(@PathVariable Long id, @RequestBody CreateRoomRequest roomRequest) {
-        GameRoomDto gameRoomDTO = gameRoomService.updateRoomById(id, roomRequest);
+    public ResponseEntity<GameRoomDto> updateRoom(@PathVariable Long id,
+                                                  @AuthenticationPrincipal User user,
+                                                  @RequestBody CreateRoomRequest roomRequest) {
+        GameRoomDto gameRoomDTO = gameRoomService.updateRoomById(id, user, roomRequest);
         return ResponseEntity.ok(gameRoomDTO);
+    }
+
+    @PostMapping("/{id}/join")
+    public ResponseEntity<GameRoomDto> joinRoom(@PathVariable Long id,
+                                                @AuthenticationPrincipal User user,
+                                                @RequestBody(required = false) JoinPrivateRoomRequest joinRequest) {
+
+        GameRoomDto gameRoomDTO = gameRoomService.joinRoom(id, user, joinRequest);
+        return ResponseEntity.ok(gameRoomDTO);
+    }
+
+    @PostMapping("/{id}/leave")
+    public ResponseEntity<GameRoomDto> leaveRoom(@PathVariable Long id,
+                                                @AuthenticationPrincipal User user) {
+
+        GameRoomDto gameRoomDto = gameRoomService.leaveRoom(id, user);
+        return ResponseEntity.ok(gameRoomDto);
     }
 
     @GetMapping("/{id}/state")

@@ -35,6 +35,10 @@ public class GameRoom {
     @JoinColumn(name = "story_id", referencedColumnName = "id")
     private Story story;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "owner_id", nullable = false)
+    private User owner;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "room_players",
@@ -42,10 +46,6 @@ public class GameRoom {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private Set<User> players = new HashSet<>();
-
-
-
-
 
     @ManyToOne
     @JoinColumn(name = "current_player_id")
