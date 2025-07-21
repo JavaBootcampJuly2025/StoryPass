@@ -46,8 +46,10 @@ public class GameRoomController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<GameRoomDto> updateRoom(@PathVariable Long id, @RequestBody CreateRoomRequest roomRequest) {
-        GameRoomDto gameRoomDTO = gameRoomService.updateRoomById(id, roomRequest);
+    public ResponseEntity<GameRoomDto> updateRoom(@PathVariable Long id,
+                                                  @AuthenticationPrincipal User user,
+                                                  @RequestBody CreateRoomRequest roomRequest) {
+        GameRoomDto gameRoomDTO = gameRoomService.updateRoomById(id, user, roomRequest);
         return ResponseEntity.ok(gameRoomDTO);
     }
 
