@@ -69,9 +69,13 @@ public class GameRoomService {
     }
 
     @Transactional
-    public GameRoomDto updateRoomById(Long roomId, CreateRoomRequest roomRequest) {
+    public GameRoomDto updateRoomById(Long roomId, User user, CreateRoomRequest roomRequest) {
         GameRoom roomToUpdate = roomRepository.findById(roomId)
                 .orElseThrow(() -> new ResourceNotFoundException("Game room with ID " + roomId + " not found"));
+
+        if(!roomToUpdate.getOwner().equals(user)) {
+            throw new NoAccessException("Only the owner can update the room");
+        }
 
         roomToUpdate.setTitle(roomRequest.title());
         roomToUpdate.setRoomCode(roomRequest.roomCode());
@@ -81,7 +85,6 @@ public class GameRoomService {
         roomToUpdate.setTurnsPerPlayer(roomRequest.turnsPerPlayer());
 
         GameRoom updatedRoom = roomRepository.save(roomToUpdate);
-
         return convertToDTO(updatedRoom);
     }
 
