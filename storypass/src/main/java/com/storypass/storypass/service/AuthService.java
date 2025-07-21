@@ -26,7 +26,7 @@ public class AuthService {
     }
 
     @Transactional
-    public void register(RegistrationRequest request) {
+    public AuthResponse register(RegistrationRequest request) {
         userRepository.findByLogin(request.login()).ifPresent(user -> {
             throw new DuplicateResourceException("A user with the login '" + request.login() + "' already exists.");
         });
@@ -40,6 +40,11 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(request.password()));
         user.setNickname(request.nickname());
         userRepository.save(user);
+
+
+
+        String token = jwtService.generateToken(user.getLogin());
+        return new AuthResponse(token, user.getNickname());
     }
 
     @Transactional(readOnly = true)
