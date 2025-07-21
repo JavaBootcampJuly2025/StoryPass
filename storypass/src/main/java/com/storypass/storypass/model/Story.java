@@ -25,4 +25,12 @@ public class Story {
 
     @OneToMany(mappedBy = "story", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StoryLine> storyLines = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "story_participants",
+            joinColumns = @JoinColumn(name = "story_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<User> participants = new ArrayList<>();
 }
