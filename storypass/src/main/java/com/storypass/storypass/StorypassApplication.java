@@ -9,7 +9,7 @@ public class StorypassApplication {
 
 	public static void main(String[] args) {
 
-		//import db parameters from db.env
+		//import db and other parameters from db.env
 		Dotenv dotenv = Dotenv.configure().filename("storypass/db.env").load();
 		dotenv.entries().forEach(entry -> System.setProperty(entry.getKey(), entry.getValue()));
 
