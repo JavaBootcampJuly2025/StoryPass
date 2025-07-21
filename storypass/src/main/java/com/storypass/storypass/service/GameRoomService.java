@@ -155,24 +155,6 @@ public class GameRoomService {
         return convertToDTO(updatedRoom);
     }
 
-    @Transactional(readOnly = true)
-    public GameStateDto getGameState(Long roomId) {
-        GameRoom room = roomRepository.findById(roomId)
-                .orElseThrow(() -> new ResourceNotFoundException("Game room with ID " + roomId + " not found"));
-
-        String lastLine = room.getStory() != null && room.getStory().getStoryLines() != null && !room.getStory().getStoryLines().isEmpty()
-                ? room.getStory().getStoryLines().get(room.getStory().getStoryLines().size() - 1).getText()
-                : "";
-
-        String currentPlayerNickname = room.getCurrentPlayer() != null
-                ? room.getCurrentPlayer().getNickname()
-                : "";
-
-        int timeLeft = room.getTimeLeftForCurrentTurnInSeconds();
-
-        return new GameStateDto(lastLine, currentPlayerNickname, timeLeft);
-    }
-
     private GameRoom convertToEntity(CreateRoomRequest roomRequest) {
         GameRoom gameRoom = new GameRoom();
         gameRoom.setTitle(roomRequest.title());
@@ -189,6 +171,7 @@ public class GameRoomService {
                 gameRoom.getId(),
                 gameRoom.getTitle(),
                 gameRoom.isPublic(),
+                gameRoom.getStatus(),
                 gameRoom.getCurrentPlayerCount(),
                 gameRoom.getMaxPlayers(),
                 gameRoom.getOwner().getNickname(),
