@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Game Room</title>
     <link rel="stylesheet" href="/css/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
 </head>
 <body>
 <div class="card">
@@ -37,18 +39,19 @@
         window.location.href = '/lobby';
     }
 
-    // We'll store the logged-in user's nickname here once fetched
     let currentUserNickname = null;
+    let stompClient = null;
 
-    // Fetch logged-in user's info (login & nickname) from /api/me
+    let countdownInterval = null;
+    let timeLeft = 0;
+    let hasAutoSubmitted = false;
+
     async function fetchCurrentUser() {
         try {
             const res = await fetch('/api/me', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            if (!res.ok) {
-                throw new Error('Failed to fetch user info');
-            }
+            if (!res.ok) throw new Error('Failed to fetch user info');
             const data = await res.json();
             currentUserNickname = data.nickname;
         } catch (e) {
@@ -66,31 +69,46 @@
             const res = await fetch(`/api/rooms/${roomId}/state`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-
-            if (res.status === 401) {
-                alert('Unauthorized. Please login again.');
-                localStorage.removeItem('token');
-                window.location.href = '/login.html';
-                return;
-            }
-
-            if (!res.ok) {
-                alert('Failed to load game state.');
-                return;
-            }
-
+            if (!res.ok) return;
             const state = await res.json();
             updateGameStateUI(state);
         } catch (e) {
             console.error(e);
-            alert('Error loading game state.');
         }
     }
 
     function updateGameStateUI(state) {
         document.getElementById('last-line').textContent = state.lastLine || '(No lines yet)';
         document.getElementById('current-player').textContent = state.currentPlayerNickname || 'N/A';
-        document.getElementById('time-left').textContent = state.timeLeftSeconds ?? '--';
+
+
+        if (countdownInterval) {
+            clearInterval(countdownInterval);
+        }
+
+        timeLeft = state.timeLeftSeconds ?? 0;
+        document.getElementById('time-left').textContent = timeLeft;
+
+        countdownInterval = setInterval(() => {
+            if (timeLeft > 0) {
+                timeLeft--;
+                document.getElementById('time-left').textContent = timeLeft;
+                hasAutoSubmitted = false;
+            } else {
+                clearInterval(countdownInterval);
+
+
+                if (!hasAutoSubmitted && currentUserNickname === state.currentPlayerNickname && state.status === 'IN_PROGRESS') {
+                    hasAutoSubmitted = true;
+                    let text = document.getElementById('turn-text').value.trim();
+                    if (!text) {
+                        text = '(No input provided)';
+                    }
+                    submitTurnAuto(text);
+                }
+            }
+        }, 1000);
+
         document.getElementById('game-status').textContent = state.status || 'UNKNOWN';
 
         const isMyTurn = currentUserNickname === state.currentPlayerNickname;
@@ -127,13 +145,6 @@
                 body: JSON.stringify({ text })
             });
 
-            if (res.status === 401) {
-                alert('Unauthorized. Please login again.');
-                localStorage.removeItem('token');
-                window.location.href = '/login.html';
-                return;
-            }
-
             if (!res.ok) {
                 const err = await res.json();
                 alert('Failed to submit turn: ' + (err.message || res.statusText));
@@ -141,10 +152,33 @@
             }
 
             document.getElementById('turn-text').value = '';
-            fetchGameState();
         } catch (e) {
             console.error(e);
             alert('Error submitting turn.');
+        }
+    }
+
+    async function submitTurnAuto(text) {
+        try {
+            const res = await fetch(`/api/rooms/${roomId}/turn`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ text })
+            });
+
+            if (!res.ok) {
+                const err = await res.json();
+                console.warn('Auto-submit failed:', err.message || res.statusText);
+                return;
+            }
+
+
+            document.getElementById('turn-text').value = '';
+        } catch (e) {
+            console.error('Error auto-submitting turn:', e);
         }
     }
 
@@ -199,18 +233,31 @@
 
             alert('Game started!');
             removeStartGameButton();
-            fetchGameState();
         } catch (e) {
             alert('Error starting game.');
             console.error(e);
         }
     }
 
-    // On page load: first fetch user info, then start polling game state
+    function connectWebSocket() {
+        const socket = new SockJS('/ws');
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, () => {
+            console.log('✅ Connected to WebSocket');
+            stompClient.subscribe(`/topic/room/${roomId}/state`, (message) => {
+                const state = JSON.parse(message.body);
+                updateGameStateUI(state);
+            });
+        }, (error) => {
+            console.error('❌ WebSocket error:', error);
+        });
+    }
+
     (async function init() {
         await fetchCurrentUser();
         await fetchGameState();
-        setInterval(fetchGameState, 3000);
+        connectWebSocket();
     })();
 </script>
 

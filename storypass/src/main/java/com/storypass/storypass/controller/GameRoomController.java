@@ -62,7 +62,7 @@ public class GameRoomController {
                                                 @AuthenticationPrincipal User user,
                                                 @RequestBody(required = false) JoinPrivateRoomRequest joinRequest) {
 
-        // Improved join logic: If user already joined, just return the room DTO without error
+
         GameRoomDto gameRoomDTO = gameRoomService.joinRoom(id, user, joinRequest);
         return ResponseEntity.ok(gameRoomDTO);
     }

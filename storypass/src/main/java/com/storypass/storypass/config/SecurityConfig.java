@@ -33,7 +33,8 @@ public class SecurityConfig {
                                 "/images/**",
                                 "/favicon.ico",
                                 "/api/auth/**",
-                                "/game"
+                                "/game",
+                                "/ws/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
