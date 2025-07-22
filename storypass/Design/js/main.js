@@ -1,6 +1,6 @@
 console.log("Main JS loaded");
 
-// Optional: Simple client-side validation example
+
 document.addEventListener("DOMContentLoaded", () => {
     const forms = document.querySelectorAll("form");
     forms.forEach(form => {
