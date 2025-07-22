@@ -1,0 +1,163 @@
+const token = localStorage.getItem('token');
+
+if (!token) {
+  window.location.href = '/login.html';
+}
+
+// Fetch all available rooms
+async function fetchRooms() {
+  try {
+    const res = await fetch('/api/rooms', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (res.status === 401) {
+      alert('Session expired or unauthorized. Please log in again.');
+      localStorage.removeItem('token');
+      window.location.href = '/login.html';
+      return;
+    }
+
+    if (!res.ok) {
+      alert('Failed to load rooms');
+      return;
+    }
+
+    const rooms = await res.json();
+    const list = document.getElementById('rooms');
+    list.innerHTML = '';
+
+    rooms.forEach(room => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <strong>${room.title}</strong> - ${room.currentPlayerCount}/${room.maxPlayers} players 
+        (${room.isPublic ? 'Public' : 'Private'}) - Owner: ${room.ownerNickname}
+        <button onclick="joinRoomPrompt(${room.id}, ${room.isPublic})">Join</button>
+      `;
+      list.appendChild(li);
+    });
+
+  } catch (error) {
+    console.error('Error fetching rooms:', error);
+    alert('An error occurred. Please try again later.');
+  }
+}
+
+// Toggle create room form
+function toggleCreateRoomForm() {
+  const form = document.getElementById('create-room-form');
+  form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+
+// Handle create room form submission
+document.getElementById('roomForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const title = document.getElementById('title').value.trim();
+  const isPublic = document.getElementById('isPublic').checked;
+  const roomCode = document.getElementById('roomCode').value.trim();
+  const maxPlayers = parseInt(document.getElementById('maxPlayers').value, 10);
+  const timeLimitPerTurnInSeconds = parseInt(document.getElementById('timeLimitPerTurnInSeconds').value, 10);
+  const turnsPerPlayer = parseInt(document.getElementById('turnsPerPlayer').value, 10);
+
+  if (!title) {
+    alert('Please enter a title');
+    return;
+  }
+
+  if (!isPublic && !roomCode) {
+    alert('Room code is required for private rooms');
+    return;
+  }
+
+  const body = {
+    title,
+    isPublic,
+    roomCode: isPublic ? null : roomCode,
+    maxPlayers,
+    timeLimitPerTurnInSeconds,
+    turnsPerPlayer
+  };
+
+  try {
+    const res = await fetch('/api/rooms', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    });
+
+    if (res.status === 401) {
+      alert('Unauthorized. Please log in again.');
+      localStorage.removeItem('token');
+      window.location.href = '/login.html';
+      return;
+    }
+
+    if (!res.ok) {
+      const err = await res.json();
+      alert('Failed to create room: ' + (err.message || res.statusText));
+      return;
+    }
+
+    const data = await res.json(); // Expecting the new room with `id`
+    // Redirect to game room immediately
+    window.location.href = `/game?roomId=${data.id}`;
+
+  } catch (e) {
+    alert('Error creating room.');
+    console.error(e);
+  }
+});
+
+// Handle joining a room (with optional room code)
+async function joinRoomPrompt(roomId, isPublic) {
+  let roomCode = '';
+
+  if (!isPublic) {
+    roomCode = prompt('This is a private room. Please enter the room code:');
+    if (!roomCode) return;
+  }
+
+  try {
+    const res = await fetch(`/api/rooms/${roomId}/join`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ roomCode })
+    });
+
+    if (res.status === 401) {
+      alert('Unauthorized. Please log in again.');
+      localStorage.removeItem('token');
+      window.location.href = '/login.html';
+      return;
+    }
+
+    if (!res.ok) {
+      const err = await res.json();
+      alert('Failed to join room: ' + (err.message || res.statusText));
+      return;
+    }
+
+    // Redirect to game room after successful join
+    window.location.href = `/game?roomId=${roomId}`;
+
+  } catch (e) {
+    alert('Error joining room.');
+    console.error(e);
+  }
+}
+
+// Logout handler
+function logout() {
+  localStorage.removeItem('token');
+  window.location.href = '/login.html';
+}
+
+// Initial room fetch
+fetchRooms();
