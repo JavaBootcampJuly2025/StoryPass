@@ -30,7 +30,7 @@ public class User implements UserDetails {
     @Column(unique = true, nullable = false, length = 15)
     private String nickname;
 
-    // --- Методы UserDetails остаются без изменений ---
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.emptyList();
