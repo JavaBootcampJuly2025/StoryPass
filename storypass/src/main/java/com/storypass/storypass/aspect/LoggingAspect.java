@@ -10,8 +10,11 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class LoggingAspect {
 
+
+
     @Pointcut("execution(public * com.storypass.storypass.service.*.*(..))")
     public void serviceMethods() {}
+
 
     @Before("serviceMethods()")
     public void logBefore(JoinPoint joinPoint) {
@@ -20,17 +23,20 @@ public class LoggingAspect {
                 joinPoint.getSignature().getName());
     }
 
+
+
     @AfterReturning(pointcut = "serviceMethods()", returning = "result")
     public void logAfterReturning(JoinPoint joinPoint, Object result) {
-        log.info("<=== Method executed successfully: {}.{} with result: {}",
+        log.info("<=== Method executed successfully: {}.{}",
                 joinPoint.getSignature().getDeclaringTypeName(),
-                joinPoint.getSignature().getName(),
-                result);
+                joinPoint.getSignature().getName());
     }
+
 
     @AfterThrowing(pointcut = "serviceMethods()", throwing = "exception")
     public void logAfterThrowing(JoinPoint joinPoint, Throwable exception) {
-        log.error("!!! Method threw exception: {}.{}",
+        log.error("!!! Method threw exception in: {}.{}",
+
                 joinPoint.getSignature().getDeclaringTypeName(),
                 joinPoint.getSignature().getName(),
                 exception);

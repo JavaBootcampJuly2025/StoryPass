@@ -6,7 +6,7 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets; // <-- Добавьте этот импорт
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 import io.jsonwebtoken.security.Keys;
