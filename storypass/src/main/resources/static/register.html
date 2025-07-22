@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Register</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div class="card">
+  <h1>Register</h1>
+  <form id="registerForm">
+    <input id="login" type="text" placeholder="Login" required />
+    <input id="nickname" type="text" placeholder="Nickname" required />
+    <input id="password" type="password" placeholder="Password" required />
+    <input id="confirm" type="password" placeholder="Confirm Password" required />
+    <button type="submit">Register</button>
+  </form>
+  <p><a href="/login.html">Already have an account? Login</a></p>
+</div>
+
+<script src="/js/register.js"></script>
+
+</body>
+</html>
