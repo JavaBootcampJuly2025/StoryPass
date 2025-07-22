@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://storypass-db-storypass.i.aivencloud.com:10376/defaultdb?sslmode=require
+    username: avnadmin
+    password: AVNS_qjFZwnld7dKcIiDFrFP
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none  # Use 'none' to prevent any schema changes during tests
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  security:
+    jwt:
+      secret-key: aVns_sUPer_SecREt_kEY_foR_StOryPaSs_Pr0JeCt_chAnGe_tHIs_tO_sOmeTHinG_eLSe12345
+      expiration: 86400000
