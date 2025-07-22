@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 public class LoggingAspect {
 
 
+
     @Pointcut("execution(public * com.storypass.storypass.service.*.*(..))")
     public void serviceMethods() {}
 
@@ -21,6 +22,7 @@ public class LoggingAspect {
                 joinPoint.getSignature().getDeclaringTypeName(),
                 joinPoint.getSignature().getName());
     }
+
 
 
     @AfterReturning(pointcut = "serviceMethods()", returning = "result")
@@ -34,6 +36,7 @@ public class LoggingAspect {
     @AfterThrowing(pointcut = "serviceMethods()", throwing = "exception")
     public void logAfterThrowing(JoinPoint joinPoint, Throwable exception) {
         log.error("!!! Method threw exception in: {}.{}",
+
                 joinPoint.getSignature().getDeclaringTypeName(),
                 joinPoint.getSignature().getName(),
                 exception);
