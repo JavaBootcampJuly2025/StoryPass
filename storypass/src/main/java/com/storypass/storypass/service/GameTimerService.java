@@ -1,5 +1,6 @@
 package com.storypass.storypass.service;
 
+
 import com.storypass.storypass.model.GameRoom;
 import com.storypass.storypass.model.Status;
 import com.storypass.storypass.repository.GameRoomRepository;
@@ -40,4 +41,5 @@ public class GameTimerService {
             }
         }
     }
+
 }

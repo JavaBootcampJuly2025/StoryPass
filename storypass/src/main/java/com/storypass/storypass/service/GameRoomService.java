@@ -40,6 +40,7 @@ public class GameRoomService {
 
         Story story = new Story();
         newRoom.setStory(story);
+
         newRoom.setStatus(Status.WAITING_FOR_PLAYERS);
 
         roomRepository.save(newRoom);
@@ -76,6 +77,7 @@ public class GameRoomService {
 
 
     @Transactional
+
     public void deleteRoomById(Long roomId, User user) {
         GameRoom room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new ResourceNotFoundException("Game room with ID " + roomId + " not found"));
@@ -112,6 +114,7 @@ public class GameRoomService {
         }
 
         room.setTitle(roomRequest.title());
+
         room.setRoomCode(roomRequest.isPublic() ? null : roomRequest.roomCode());
         room.setPublic(roomRequest.isPublic());
         room.setMaxPlayers(roomRequest.maxPlayers());
@@ -119,7 +122,9 @@ public class GameRoomService {
         room.setTurnsPerPlayer(roomRequest.turnsPerPlayer());
 
         GameRoom updatedRoom = roomRepository.save(room);
+
         broadcastRoomList();
+
         return convertToDTO(updatedRoom);
     }
 
@@ -144,6 +149,7 @@ public class GameRoomService {
 
         return new GameStateDto(lastLine, currentPlayerNickname, timeLeft, ownerNickname, status);
     }
+
 
     @Transactional
     public GameRoomDto joinRoom(Long roomId, User user, JoinPrivateRoomRequest joinRequest) {
@@ -171,9 +177,11 @@ public class GameRoomService {
         room.getPlayers().add(user);
         room.setCurrentPlayerCount(room.getCurrentPlayerCount() + 1);
 
+
         GameRoomDto dto = convertToDTO(roomRepository.save(room));
         broadcastRoomList();
         return dto;
+
     }
 
     @Transactional
@@ -185,8 +193,15 @@ public class GameRoomService {
             throw new ResourceNotFoundException("User is not in the room with id: " + roomId);
         }
 
+
+      //  if (room.getOwner().equals(user) && room.getCurrentPlayerCount() > 1) {
+       //     throw new CurrentStatusException("Owner cannot leave the room if there are other players");
+      //  }
+
+
         room.getPlayers().remove(user);
         room.setCurrentPlayerCount(room.getCurrentPlayerCount() - 1);
+
 
         if (room.getCurrentPlayer() != null && room.getCurrentPlayer().equals(user)) {
             room.setCurrentPlayer(null);
@@ -201,6 +216,8 @@ public class GameRoomService {
         GameRoomDto dto = convertToDTO(roomRepository.save(room));
         broadcastRoomList();
         return dto;
+
+
     }
 
     @Transactional
@@ -222,7 +239,9 @@ public class GameRoomService {
         roomRepository.save(room);
 
         broadcastGameState(room);
+
         broadcastRoomList();
+
     }
 
     @Transactional
@@ -237,6 +256,9 @@ public class GameRoomService {
         StoryLine line = new StoryLine();
         line.setText(dto.text());
         line.setAuthor(user);
+
+        //line.setRoom(room);
+
         line.setStory(room.getStory());
 
         room.getStory().getStoryLines().add(line);
@@ -269,6 +291,7 @@ public class GameRoomService {
         broadcastGameState(room);
     }
 
+
     void broadcastGameState(GameRoom room) {
         GameStateDto state = getGameState(room.getId());
         messagingTemplate.convertAndSend("/topic/room/" + room.getId() + "/state", state);
@@ -281,6 +304,7 @@ public class GameRoomService {
                 .collect(Collectors.toList());
 
         messagingTemplate.convertAndSend("/topic/rooms", updatedRooms);
+
     }
 
     private GameRoom convertToEntity(CreateRoomRequest request) {

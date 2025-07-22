@@ -4,7 +4,9 @@ if (!token) {
   window.location.href = '/login.html';
 }
 
+
 let stompClient = null;
+
 
 
 async function fetchRooms() {
@@ -26,14 +28,17 @@ async function fetchRooms() {
     }
 
     const rooms = await res.json();
+
     console.log('Rooms:', rooms);
     renderRoomList(rooms);
+
 
   } catch (error) {
     console.error('Error fetching rooms:', error);
     alert('An error occurred. Please try again later.');
   }
 }
+
 
 
 function renderRoomList(rooms) {
@@ -182,6 +187,6 @@ function logout() {
   window.location.href = '/login.html';
 }
 
-
+// Initial room fetch
 fetchRooms();
 connectWebSocket();

@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Game Room</title>
     <link rel="stylesheet" href="/css/style.css" />
+
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+
 </head>
 <body>
 <div class="card">
@@ -46,12 +48,15 @@
     let timeLeft = 0;
     let hasAutoSubmitted = false;
 
+
     async function fetchCurrentUser() {
         try {
             const res = await fetch('/api/me', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
+
             if (!res.ok) throw new Error('Failed to fetch user info');
+
             const data = await res.json();
             currentUserNickname = data.nickname;
         } catch (e) {
@@ -69,17 +74,21 @@
             const res = await fetch(`/api/rooms/${roomId}/state`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
+
             if (!res.ok) return;
+
             const state = await res.json();
             updateGameStateUI(state);
         } catch (e) {
             console.error(e);
+
         }
     }
 
     function updateGameStateUI(state) {
         document.getElementById('last-line').textContent = state.lastLine || '(No lines yet)';
         document.getElementById('current-player').textContent = state.currentPlayerNickname || 'N/A';
+
 
 
         if (countdownInterval) {
@@ -108,6 +117,7 @@
                 }
             }
         }, 1000);
+
 
         document.getElementById('game-status').textContent = state.status || 'UNKNOWN';
 
@@ -145,6 +155,7 @@
                 body: JSON.stringify({ text })
             });
 
+
             if (!res.ok) {
                 const err = await res.json();
                 alert('Failed to submit turn: ' + (err.message || res.statusText));
@@ -179,6 +190,7 @@
             document.getElementById('turn-text').value = '';
         } catch (e) {
             console.error('Error auto-submitting turn:', e);
+
         }
     }
 
@@ -233,6 +245,7 @@
 
             alert('Game started!');
             removeStartGameButton();
+
         } catch (e) {
             alert('Error starting game.');
             console.error(e);
@@ -258,6 +271,7 @@
         await fetchCurrentUser();
         await fetchGameState();
         connectWebSocket();
+
     })();
 </script>
 

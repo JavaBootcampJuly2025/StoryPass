@@ -5,6 +5,7 @@ public class GameStateDto {
     private String currentPlayerNickname;
     private int timeLeftSeconds;
     private String ownerNickname;
+
     private String status;
 
     public GameStateDto() {}
