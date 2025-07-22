@@ -12,6 +12,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class StoryLine {
 
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -28,4 +30,17 @@ public class StoryLine {
     @ManyToOne
     @JoinColumn(name = "story_id")
     private Story story;
+
+    @ManyToOne
+    @JoinColumn(name = "room_id")
+    private GameRoom room;
+
+    public GameRoom getRoom() {
+        return room;
+    }
+
+    public void setRoom(GameRoom room) {
+        this.room = room;
+    }
+
 }

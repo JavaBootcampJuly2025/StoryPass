@@ -17,8 +17,47 @@
     </ul>
   </div>
 
-  <button onclick="createRoom()">Create Room</button>
+  <button onclick="toggleCreateRoomForm()">Create Room</button>
   <button onclick="joinRoom()">Join Room</button>
+  <button onclick="logout()">Logout</button>
+
+  <div id="create-room-form" style="display:none; margin-top:20px;">
+    <h3>Create New Room</h3>
+    <form id="roomForm">
+      <label>
+        Title:<br />
+        <input type="text" id="title" required />
+      </label><br /><br />
+
+      <label>
+        Public:
+        <input type="checkbox" id="isPublic" checked />
+      </label><br /><br />
+
+      <label>
+        Room Code (if private):<br />
+        <input type="text" id="roomCode" />
+      </label><br /><br />
+
+      <label>
+        Max Players:<br />
+        <input type="number" id="maxPlayers" min="2" max="10" value="4" required />
+      </label><br /><br />
+
+      <label>
+        Time Limit Per Turn (seconds):<br />
+        <input type="number" id="timeLimitPerTurnInSeconds" min="10" max="300" value="60" required />
+      </label><br /><br />
+
+      <label>
+        Turns Per Player:<br />
+        <input type="number" id="turnsPerPlayer" min="1" max="10" value="3" required />
+      </label><br /><br />
+
+      <button type="submit">Create Room</button>
+      <button type="button" onclick="toggleCreateRoomForm()">Cancel</button>
+    </form>
+  </div>
 </div>
 
 <script src="/js/lobby.js"></script>
