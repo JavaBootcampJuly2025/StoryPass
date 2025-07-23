@@ -17,7 +17,7 @@ public class PdfExportTest {
 
     @Test
     void test() throws IOException {
-        byte[] data = pdfExportService.generatePdf();
+        byte[] data = pdfExportService.generatePdfForStory(1L);
 
         File file = new File("StoryPass.pdf");
 
