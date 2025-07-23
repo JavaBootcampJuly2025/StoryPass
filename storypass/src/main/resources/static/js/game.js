@@ -26,6 +26,13 @@ async function fetchCurrentUser() {
 
         const data = await res.json();
         currentUserNickname = data.nickname;
+
+        // Update greeting link if present
+        const greetingLink = document.getElementById('greeting-link');
+        if (greetingLink) {
+            greetingLink.textContent = `Hello, ${currentUserNickname}`;
+            greetingLink.href = `/profile/${currentUserNickname}`;
+        }
     } catch (e) {
         console.error(e);
         alert('Error fetching user info. Please login again.');
@@ -48,34 +55,85 @@ async function fetchGameState() {
 
         const state = await res.json();
         updateGameStateUI(state);
+
+        // Update players list
+        updatePlayersList(state.players || []);
     } catch (e) {
         console.error(e);
     }
 }
 
+function updatePlayersList(players) {
+    const playersUl = document.getElementById('players');
+    if (!playersUl) return;
+
+    playersUl.innerHTML = ''; // Clear existing players
+
+    if (players.length === 0) {
+        playersUl.innerHTML = '<li>No players in room</li>';
+        return;
+    }
+
+    players.forEach(player => {
+        const li = document.createElement('li');
+        li.textContent = player.nickname;
+
+        if (player.nickname === currentUserNickname) {
+            li.style.fontWeight = '700';
+            li.style.color = '#4caf50';
+            li.textContent += ' (You)';
+        }
+
+        playersUl.appendChild(li);
+    });
+}
+
 function updateGameStateUI(state) {
     const lastLineElem = document.getElementById('last-line');
     const isMyTurn = currentUserNickname === state.currentPlayerNickname;
+    const lastlinecap = document.getElementById('lastlinecap');
+
 
     if (isMyTurn) {
         lastLineElem.textContent = state.lastLine || '(No lines yet)';
+        lastLineElem.style.visibility = "visible";
+        lastlinecap.style.visibility = "visible";
     } else {
-        lastLineElem.textContent = 'Hidden, not your turn';
+        lastLineElem.style.visibility = "hidden";
+        lastlinecap.style.visibility = "hidden";
     }
 
-    document.getElementById('current-player').textContent = state.currentPlayerNickname || 'N/A';
+    const currentPlayerWrapper = document.getElementById('current-player-wrapper');
+    const timeLeftWrapper = document.getElementById('time-left-wrapper');
+
+    const gameInProgress = state.status === 'IN_PROGRESS';
+
+    if (gameInProgress) {
+        document.getElementById('current-player').textContent = state.currentPlayerNickname || 'N/A';
+    }
 
     if (countdownInterval) {
         clearInterval(countdownInterval);
     }
 
     timeLeft = state.timeLeftSeconds ?? 0;
-    document.getElementById('time-left').textContent = timeLeft;
+
+    if (gameInProgress) {
+        document.getElementById('time-left').textContent = timeLeft;
+
+        currentPlayerWrapper.style.display = 'block';
+        timeLeftWrapper.style.display = 'block';
+    } else {
+        currentPlayerWrapper.style.display = 'none';
+        timeLeftWrapper.style.display = 'none';
+    }
 
     countdownInterval = setInterval(() => {
         if (timeLeft > 0) {
             timeLeft--;
-            document.getElementById('time-left').textContent = timeLeft;
+            if (gameInProgress) {
+                document.getElementById('time-left').textContent = timeLeft;
+            }
             hasAutoSubmitted = false;
         } else {
             clearInterval(countdownInterval);
@@ -90,7 +148,6 @@ function updateGameStateUI(state) {
 
     document.getElementById('game-status').textContent = state.status || 'UNKNOWN';
 
-    const gameInProgress = state.status === 'IN_PROGRESS';
     const isOwner = currentUserNickname === state.ownerNickname;
 
     document.getElementById('turn-section').style.display = (isMyTurn && gameInProgress) ? 'block' : 'none';
@@ -100,7 +157,7 @@ function updateGameStateUI(state) {
     }
 
     if (state.status === 'WAITING_FOR_PLAYERS' && isOwner) {
-        showStartGameButton();
+        showStartGameButton(state.players, state.maxPlayers);
     } else {
         removeStartGameButton();
     }
@@ -180,8 +237,9 @@ async function leaveRoom() {
     }
 }
 
-function showStartGameButton() {
-    if (document.getElementById('start-game-btn')) return;
+function showStartGameButton(players, maxPlayers) {
+    const btnExists = document.getElementById('start-game-btn');
+    if (btnExists || players.length < 2) return;
 
     const btn = document.createElement('button');
     btn.textContent = 'Start Game';
@@ -225,6 +283,7 @@ function connectWebSocket() {
         stompClient.subscribe(`/topic/room/${roomId}/state`, (message) => {
             const state = JSON.parse(message.body);
             updateGameStateUI(state);
+            updatePlayersList(state.players || []);
         });
     }, (error) => {
         console.error('❌ WebSocket error:', error);

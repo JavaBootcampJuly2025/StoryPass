@@ -74,12 +74,69 @@ function connectWebSocket() {
 }
 
 
+
+function handlePublicCheckboxChange() {
+  const isPublic = document.getElementById('isPublic').checked;
+  const roomCodeInput = document.getElementById('roomCode');
+  roomCodeInput.disabled = isPublic;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const isPublicCheckbox = document.getElementById('isPublic');
+
+
+  handlePublicCheckboxChange();
+
+
+  isPublicCheckbox.addEventListener('change', handlePublicCheckboxChange);
+});
+
+
+document.addEventListener('DOMContentLoaded', async () => {
+  const greetingLink = document.getElementById('greeting-link');
+
+  try {
+    const res = await fetch('/api/me', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (res.ok) {
+      const user = await res.json();
+      greetingLink.textContent = `Hello, ${user.nickname}!`;
+    } else {
+      greetingLink.textContent = 'Hello!';
+    }
+  } catch (e) {
+    console.error('Failed to fetch user data:', e);
+    greetingLink.textContent = 'Hello!';
+  }
+});
+
+
+
+
 function toggleCreateRoomForm() {
   const form = document.getElementById('create-room-form');
-  form.style.display = form.style.display === 'none' ? 'block' : 'none';
+  const togglecreateform = document.getElementById('togglecreateform');
   const roomlist = document.getElementById('room-list');
-  roomlist.style.display = roomlist.style.display === 'block' ? 'none' : 'block';
+
+  const isFormVisible = form.style.display === 'block';
+
+  if (isFormVisible) {
+    form.style.display = 'none';
+    togglecreateform.style.display = 'inline-block';
+    roomlist.style.display = 'block';
+  } else {
+    form.style.display = 'block';
+    togglecreateform.style.display = 'none';
+    roomlist.style.display = 'none';
+  }
 }
+
+
+
 
 
 document.getElementById('roomForm').addEventListener('submit', async (e) => {
