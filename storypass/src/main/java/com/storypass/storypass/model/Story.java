@@ -24,7 +24,9 @@ public class Story {
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "story", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("id ASC")
     private List<StoryLine> storyLines = new ArrayList<>();
+
 
     @ManyToMany
     @JoinTable(
