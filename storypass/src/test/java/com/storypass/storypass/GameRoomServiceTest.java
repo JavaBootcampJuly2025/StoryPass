@@ -7,14 +7,17 @@ import com.storypass.storypass.dto.JoinPrivateRoomRequest;
 import com.storypass.storypass.exception.*;
 import com.storypass.storypass.model.GameRoom;
 import com.storypass.storypass.model.Status;
+import com.storypass.storypass.model.Story;
 import com.storypass.storypass.model.User;
 import com.storypass.storypass.repository.GameRoomRepository;
 import com.storypass.storypass.service.GameRoomService;
+import com.storypass.storypass.service.StoryService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.Optional;
 
@@ -31,6 +34,8 @@ public class GameRoomServiceTest {
 
 
     @Mock GameRoomRepository roomRepository;
+    @Mock StoryService storyService;
+    @Mock SimpMessagingTemplate messagingTemplate;
 
     @InjectMocks GameRoomService gameRoomService;
 
@@ -297,14 +302,14 @@ public class GameRoomServiceTest {
 
             when(roomRepository.findById(1L)).thenReturn(Optional.of(room));
 
-            GameStateDto gameState = gameRoomService.getGameState(1L);
+            GameStateDto gameState = gameRoomService.getGameState(1L, createTestUser());
 
             assertEquals(TEST_USER_NICKNAME, gameState.getOwnerNickname());
         }
 
         @Test
         void shouldThrowResourceNotFoundException() {
-            assertThrows(ResourceNotFoundException.class, () -> gameRoomService.getGameState(1L));
+            assertThrows(ResourceNotFoundException.class, () -> gameRoomService.getGameState(1L, createTestUser()));
         }
 
     }
@@ -350,6 +355,7 @@ public class GameRoomServiceTest {
         room.setStatus(Status.WAITING_FOR_PLAYERS);
         room.setMaxPlayers(10);
         room.setCurrentPlayerCount(1);
+        room.setStory(new Story());
         return room;
     }
 
@@ -365,6 +371,7 @@ public class GameRoomServiceTest {
         room.setStatus(Status.WAITING_FOR_PLAYERS);
         room.setMaxPlayers(10);
         room.setCurrentPlayerCount(1);
+        room.setStory(new Story());
         return room;
     }
 }
