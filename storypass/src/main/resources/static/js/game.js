@@ -54,7 +54,15 @@ async function fetchGameState() {
 }
 
 function updateGameStateUI(state) {
-    document.getElementById('last-line').textContent = state.lastLine || '(No lines yet)';
+    const lastLineElem = document.getElementById('last-line');
+    const isMyTurn = currentUserNickname === state.currentPlayerNickname;
+
+    if (isMyTurn) {
+        lastLineElem.textContent = state.lastLine || '(No lines yet)';
+    } else {
+        lastLineElem.textContent = 'Hidden, not your turn';
+    }
+
     document.getElementById('current-player').textContent = state.currentPlayerNickname || 'N/A';
 
     if (countdownInterval) {
@@ -71,7 +79,7 @@ function updateGameStateUI(state) {
             hasAutoSubmitted = false;
         } else {
             clearInterval(countdownInterval);
-            if (!hasAutoSubmitted && currentUserNickname === state.currentPlayerNickname && state.status === 'IN_PROGRESS') {
+            if (!hasAutoSubmitted && isMyTurn && state.status === 'IN_PROGRESS') {
                 hasAutoSubmitted = true;
                 let text = document.getElementById('turn-text').value.trim();
                 if (!text) text = '(No input provided)';
@@ -82,7 +90,6 @@ function updateGameStateUI(state) {
 
     document.getElementById('game-status').textContent = state.status || 'UNKNOWN';
 
-    const isMyTurn = currentUserNickname === state.currentPlayerNickname;
     const gameInProgress = state.status === 'IN_PROGRESS';
     const isOwner = currentUserNickname === state.ownerNickname;
 

@@ -76,10 +76,12 @@ public class GameRoomController {
     }
 
     @GetMapping("/{id}/state")
-    public ResponseEntity<GameStateDto> getGameState(@PathVariable Long id) {
-        GameStateDto gameStateDto = gameRoomService.getGameState(id);
+    public ResponseEntity<GameStateDto> getGameState(@PathVariable Long id,
+                                                     @AuthenticationPrincipal User currentUser) {
+        GameStateDto gameStateDto = gameRoomService.getGameState(id, currentUser);
         return ResponseEntity.ok(gameStateDto);
     }
+
 
     @PostMapping("/{id}/start")
     public ResponseEntity<Void> startGame(@PathVariable Long id,
