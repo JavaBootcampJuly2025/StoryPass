@@ -1,10 +1,11 @@
 package com.storypass.storypass.controller;
 
-import com.storypass.storypass.dto.SubmitTurnDto;
 import com.storypass.storypass.dto.CreateRoomRequest;
+import com.storypass.storypass.dto.FullStoryDto;
 import com.storypass.storypass.dto.GameRoomDto;
 import com.storypass.storypass.dto.GameStateDto;
 import com.storypass.storypass.dto.JoinPrivateRoomRequest;
+import com.storypass.storypass.dto.SubmitTurnDto;
 import com.storypass.storypass.model.User;
 import com.storypass.storypass.service.GameRoomService;
 import org.springframework.http.ResponseEntity;
@@ -96,5 +97,11 @@ public class GameRoomController {
                                            @RequestBody SubmitTurnDto dto) {
         gameRoomService.submitTurn(id, user, dto);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{id}/full-story")
+    public ResponseEntity<FullStoryDto> getFullStory(@PathVariable Long id) {
+        FullStoryDto fullStory = gameRoomService.getFullStoryForRoom(id);
+        return ResponseEntity.ok(fullStory);
     }
 }

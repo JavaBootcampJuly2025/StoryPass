@@ -21,14 +21,17 @@ public class GameRoomService {
     private final GameRoomRepository roomRepository;
     private final StoryLineRepository storyLineRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final StoryService storyService;
 
     @Autowired
     public GameRoomService(GameRoomRepository roomRepository,
                            StoryLineRepository storyLineRepository,
-                           SimpMessagingTemplate messagingTemplate) {
+                           SimpMessagingTemplate messagingTemplate,
+                           StoryService storyService) {
         this.roomRepository = roomRepository;
         this.storyLineRepository = storyLineRepository;
         this.messagingTemplate = messagingTemplate;
+        this.storyService = storyService;
     }
 
     @Transactional
@@ -40,7 +43,9 @@ public class GameRoomService {
         newRoom.setCurrentPlayer(owner);
 
         Story story = new Story();
+        story.setTitle(newRoom.getTitle());
         newRoom.setStory(story);
+        newRoom.getStory().getParticipants().add(owner);
 
         newRoom.setStatus(Status.WAITING_FOR_PLAYERS);
 
@@ -78,7 +83,6 @@ public class GameRoomService {
 
 
     @Transactional
-
     public void deleteRoomById(Long roomId, User user) {
         GameRoom room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new ResourceNotFoundException("Game room with ID " + roomId + " not found"));
@@ -176,13 +180,9 @@ public class GameRoomService {
                 timeLeft,
                 ownerNickname,
                 status,
-                playerDtos           // pass player list here
+                playerDtos
         );
     }
-
-
-
-
 
     @Transactional
     public GameRoomDto joinRoom(Long roomId, User user, JoinPrivateRoomRequest joinRequest) {
@@ -208,6 +208,7 @@ public class GameRoomService {
         }
 
         room.getPlayers().add(user);
+        room.getStory().getParticipants().add(user);
         room.setCurrentPlayerCount(room.getCurrentPlayerCount() + 1);
 
 
@@ -226,12 +227,6 @@ public class GameRoomService {
         if (!room.getPlayers().contains(user)) {
             throw new ResourceNotFoundException("User is not in the room with id: " + roomId);
         }
-
-
-      //  if (room.getOwner().equals(user) && room.getCurrentPlayerCount() > 1) {
-       //     throw new CurrentStatusException("Owner cannot leave the room if there are other players");
-      //  }
-
 
         room.getPlayers().remove(user);
         room.setCurrentPlayerCount(room.getCurrentPlayerCount() - 1);
@@ -292,8 +287,6 @@ public class GameRoomService {
         line.setText(dto.text());
         line.setAuthor(user);
 
-        //line.setRoom(room);
-
         line.setStory(room.getStory());
 
         room.getStory().getStoryLines().add(line);
@@ -326,6 +319,22 @@ public class GameRoomService {
         broadcastGameState(room);
     }
 
+    @Transactional(readOnly = true)
+    public FullStoryDto getFullStoryForRoom(Long roomId) {
+        GameRoom room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ResourceNotFoundException("GameRoom with ID " + roomId + " not found"));
+
+        if (room.getStatus() != Status.FINISHED) {
+            throw new IllegalStateException("Story is not finished yet.");
+        }
+
+        if (room.getStory() == null) {
+            throw new ResourceNotFoundException("No story associated with this room.");
+        }
+
+        Long storyId = room.getStory().getId();
+        return storyService.getFullStoryById(storyId);
+    }
 
     void broadcastGameState(GameRoom room) {
         List<User> players = new ArrayList<>(room.getPlayers());
@@ -364,11 +373,8 @@ public class GameRoomService {
         );
         state.setMaxPlayers(room.getMaxPlayers());
 
-
         messagingTemplate.convertAndSend("/topic/room/" + room.getId() + "/state", state);
     }
-
-
 
     private void broadcastRoomList() {
         List<GameRoomDto> updatedRooms = roomRepository.findAll()
@@ -377,7 +383,6 @@ public class GameRoomService {
                 .collect(Collectors.toList());
 
         messagingTemplate.convertAndSend("/topic/rooms", updatedRooms);
-
     }
 
     private GameRoom convertToEntity(CreateRoomRequest request) {
