@@ -1,6 +1,5 @@
 HELP.md
 target/
-.DS_Store
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
@@ -16,10 +15,16 @@ target/
 
 ### IntelliJ IDEA ###
 .idea
+..\.idea 
+
+../.idea
 *.iws
 *.iml
 *.ipr
-*.xml
+../.idea/misc.xml
+ ../.idea/dataSources.local.xml
+../.idea/dataSources.xml
+../.idea/dataSources/
 
 ### NetBeans ###
 /nbproject/private/

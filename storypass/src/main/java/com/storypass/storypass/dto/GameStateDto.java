@@ -5,7 +5,8 @@ public class GameStateDto {
     private String currentPlayerNickname;
     private int timeLeftSeconds;
     private String ownerNickname;
-    private String status;  // new field
+
+    private String status;
 
     public GameStateDto() {}
 
@@ -21,14 +22,14 @@ public class GameStateDto {
         this.status = status;
     }
 
-    // Optional: keep this for backward compatibility (not recommended)
+
     public GameStateDto(String lastLine, String currentPlayerNickname, int timeLeftSeconds) {
         this.lastLine = lastLine;
         this.currentPlayerNickname = currentPlayerNickname;
         this.timeLeftSeconds = timeLeftSeconds;
     }
 
-    // Getters and setters
+
     public String getLastLine() {
         return lastLine;
     }
