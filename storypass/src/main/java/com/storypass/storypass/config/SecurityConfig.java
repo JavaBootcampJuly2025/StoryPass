@@ -39,7 +39,10 @@ public class SecurityConfig {
                                 "/api/auth/**",
                                 "/game",
                                 "/ws/**",
-                                "/api/rooms/*/export/pdf"
+                                "/api/rooms/*/export/pdf",
+                                "/playerprofile.html",
+                                "/playerprofile",
+                                "/api/export/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
