@@ -11,6 +11,8 @@ import com.storypass.storypass.service.GameRoomService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 import java.util.List;
 
@@ -103,5 +105,17 @@ public class GameRoomController {
     public ResponseEntity<FullStoryDto> getFullStory(@PathVariable Long id) {
         FullStoryDto fullStory = gameRoomService.getFullStoryForRoom(id);
         return ResponseEntity.ok(fullStory);
+    }
+    @GetMapping(value = "/{id}/export/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> exportStoryToPdf(@PathVariable Long id) {
+        byte[] pdfContents = gameRoomService.getStoryAsPdf(id);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentDispositionFormData("attachment", "Story.pdf");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdfContents);
     }
 }
