@@ -1,34 +1,43 @@
 package com.storypass.storypass.service;
 
+import com.storypass.storypass.dto.FullStoryDto;
+import com.storypass.storypass.dto.StoryLineDto;
 import lombok.extern.java.Log;
-import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JasperCompileManager;
-import net.sf.jasperreports.engine.JasperExportManager;
-import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.*;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Log
 @Service
 public class PdfExportService {
-    public byte[] generatePdf()
-    {
+
+    private final StoryService storyService;
+
+    public PdfExportService(StoryService storyService) {
+        this.storyService = storyService;
+    }
+
+    public byte[] generatePdfForStory(Long storyId) {
         try {
-            String text = "One upon a time..."; // TODO: Init with the actual story text!
+            FullStoryDto story = storyService.getFullStoryById(storyId);
+
+            String fullText = story.lines().stream()
+                    .map(line -> line.authorNickname() + ": " + line.text())
+                    .collect(Collectors.joining("\n"));
 
             InputStream templateStream = getClass().getResourceAsStream("/jasper-reports/templates/StoryPass.jrxml");
 
-            var compiledTemplate = JasperCompileManager.compileReport(templateStream);
+            JasperReport compiledTemplate = JasperCompileManager.compileReport(templateStream);
 
-            var params = new HashMap<>(Map.<String, Object>of(
-                    "title", "My Story", // TODO: Add title!
-                    "text", text
-            ));
+            Map<String, Object> params = new HashMap<>();
+            params.put("title", story.title());
+            params.put("text", fullText);
 
-            var jasperPrint = JasperFillManager.fillReport(compiledTemplate, params);
+            JasperPrint jasperPrint = JasperFillManager.fillReport(compiledTemplate, params);
 
             return JasperExportManager.exportReportToPdf(jasperPrint);
         } catch (JRException e) {
