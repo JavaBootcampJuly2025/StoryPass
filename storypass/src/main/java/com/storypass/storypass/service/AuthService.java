@@ -50,7 +50,7 @@ public class AuthService {
     @Transactional(readOnly = true)
     public AuthResponse login(LoginRequest request) {
         User user = userRepository.findByLogin(request.login())
-                .orElseThrow(() -> new ResourceNotFoundException("Incorrect login or password."));
+                .orElseThrow(() -> new ResourceNotFoundException("Incorrect login or password.."));
 
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
             throw new ResourceNotFoundException("Incorrect login or password.");
