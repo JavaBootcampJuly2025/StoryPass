@@ -1,0 +1,228 @@
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: url('../images/photo1.jpeg') no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+
+.card {
+    max-height: 90vh;
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(6px);
+    padding: 30px 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+h1 {
+    font-size: 28px;
+    color: #333;
+    margin-bottom: 25px;
+    font-weight: 700;
+}
+
+h3 {
+    color: #444;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+
+#room-list ul#rooms {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px 0;
+    max-height: 180px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fafafa;
+}
+
+#room-list ul#rooms li {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+    color: #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#room-list ul#rooms li:last-child {
+    border-bottom: none;
+}
+
+button {
+    background: linear-gradient(45deg, #4CAF50, #2E7D32);
+    border: none;
+    color: white;
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    margin: 8px 5px 0 5px;
+}
+
+button:hover {
+    background: linear-gradient(45deg, #66BB6A, #388E3C);
+}
+
+#create-room-form {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 10px;
+    padding: 30px 40px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    max-width: 420px;
+    width: 90%;
+    z-index: 1000;
+    overflow-y: auto;
+    max-height: 80vh; /* limit vertical height */
+    display: none; /* hide by default */
+}
+
+/* Add some spacing & style to inputs and labels */
+#create-room-form label {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+}
+
+#create-room-form input[type="text"],
+#create-room-form input[type="number"] {
+    margin-top: 6px;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: #fff;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#create-room-form input[type="checkbox"] {
+    margin-left: 10px;
+    transform: scale(1.2);
+}
+
+#create-room-form button {
+    margin-top: 15px;
+    background: linear-gradient(45deg, #4CAF50, #2E7D32);
+    border: none;
+    color: white;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    width: 100%;
+}
+
+#create-room-form button:hover {
+    background: linear-gradient(45deg, #66BB6A, #388E3C);
+}
+
+
+form#roomForm {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    text-align: left;
+}
+
+/* Labels and inputs */
+form#roomForm label {
+    font-size: 14px;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+}
+
+form#roomForm input[type="text"],
+form#roomForm input[type="number"] {
+    padding: 8px 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: #fff;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+}
+
+form#roomForm input[type="text"]:focus,
+form#roomForm input[type="number"]:focus {
+    border-color: #4caf50;
+    outline: none;
+}
+
+
+form#roomForm label input[type="checkbox"] {
+    width: auto;
+    margin-top: 6px;
+    align-self: flex-start;
+    cursor: pointer;
+}
+
+
+#greeting-container {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+}
+
+#greeting-link {
+    font-weight: 700;
+    color: #2e7d32;
+    font-size: 16px;
+    text-decoration: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.85);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+#greeting-link:hover {
+    color: #4caf50;
+    background: rgba(255, 255, 255, 1);
+    text-decoration: underline;
+}
+
+
+@media (max-width: 450px) {
+    .card {
+        max-width: 95vw;
+        padding: 20px 15px;
+    }
+
+    button {
+        font-size: 14px;
+        padding: 10px 16px;
+    }
+
+    #greeting-link {
+        font-size: 14px;
+    }
+}
