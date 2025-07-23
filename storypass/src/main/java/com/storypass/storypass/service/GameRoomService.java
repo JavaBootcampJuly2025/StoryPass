@@ -135,21 +135,22 @@ public class GameRoomService {
                 .orElseThrow(() -> new ResourceNotFoundException("Game room with ID " + roomId + " not found"));
 
         List<User> players = new ArrayList<>(room.getPlayers());
+
+        List<PlayerDto> playerDtos = players.stream()
+                .map(p -> new PlayerDto(p.getId(), p.getNickname()))
+                .collect(Collectors.toList());
+
         List<StoryLine> lines = room.getStory().getStoryLines().stream()
                 .sorted(Comparator.comparing(StoryLine::getId))
                 .collect(Collectors.toList());
 
-
         String visibleLine = "";
 
-        // Find current user index in player list
         int currentIndex = players.indexOf(currentUser);
         if (currentIndex != -1 && !lines.isEmpty()) {
-            // Get previous player's index
             int previousIndex = (currentIndex - 1 + players.size()) % players.size();
             User previousPlayer = players.get(previousIndex);
 
-            // Find last line written by previous player
             for (int i = lines.size() - 1; i >= 0; i--) {
                 StoryLine line = lines.get(i);
                 if (line.getAuthor().equals(previousPlayer)) {
@@ -169,8 +170,16 @@ public class GameRoomService {
 
         String status = room.getStatus() != null ? room.getStatus().name() : "UNKNOWN";
 
-        return new GameStateDto(visibleLine, currentPlayerNickname, timeLeft, ownerNickname, status);
+        return new GameStateDto(
+                visibleLine,
+                currentPlayerNickname,
+                timeLeft,
+                ownerNickname,
+                status,
+                playerDtos           // pass player list here
+        );
     }
+
 
 
 
@@ -204,6 +213,7 @@ public class GameRoomService {
 
         GameRoomDto dto = convertToDTO(roomRepository.save(room));
         broadcastRoomList();
+        broadcastGameState(room);
         return dto;
 
     }
@@ -239,6 +249,7 @@ public class GameRoomService {
 
         GameRoomDto dto = convertToDTO(roomRepository.save(room));
         broadcastRoomList();
+        broadcastGameState(room);
         return dto;
 
 
@@ -318,12 +329,16 @@ public class GameRoomService {
 
     void broadcastGameState(GameRoom room) {
         List<User> players = new ArrayList<>(room.getPlayers());
+
+        List<PlayerDto> playerDtos = players.stream()
+                .map(p -> new PlayerDto(p.getId(), p.getNickname()))
+                .collect(Collectors.toList());
+
         List<StoryLine> lines = room.getStory().getStoryLines().stream()
                 .sorted(Comparator.comparing(StoryLine::getId))
                 .collect(Collectors.toList());
 
         String visibleLine = "";
-
 
         if (room.getCurrentPlayer() != null && !lines.isEmpty()) {
             int currentIndex = players.indexOf(room.getCurrentPlayer());
@@ -344,11 +359,15 @@ public class GameRoomService {
                 room.getCurrentPlayer() != null ? room.getCurrentPlayer().getNickname() : "",
                 room.getTimeLeftForCurrentTurnInSeconds(),
                 room.getOwner() != null ? room.getOwner().getNickname() : "",
-                room.getStatus() != null ? room.getStatus().name() : "UNKNOWN"
+                room.getStatus() != null ? room.getStatus().name() : "UNKNOWN",
+                playerDtos
         );
+        state.setMaxPlayers(room.getMaxPlayers());
+
 
         messagingTemplate.convertAndSend("/topic/room/" + room.getId() + "/state", state);
     }
+
 
 
     private void broadcastRoomList() {

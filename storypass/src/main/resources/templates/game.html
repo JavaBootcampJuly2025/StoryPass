@@ -4,31 +4,58 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Game Room</title>
-    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/game.css" />
 
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
 
-
     <script src="/js/game.js" defer></script>
 </head>
 <body>
-<div class="card">
-    <h1>Game Room</h1>
-    <div>
-        <p><strong>Last line:</strong> <span id="last-line">Loading...</span></p>
-        <p><strong>Current player:</strong> <span id="current-player">Loading...</span></p>
-        <p><strong>Time left:</strong> <span id="time-left">--</span> seconds</p>
-        <p><strong>Status:</strong> <span id="game-status">--</span></p>
-    </div>
 
-    <div id="turn-section" style="display:none;">
-        <textarea id="turn-text" rows="3" cols="50" placeholder="Write your turn here..."></textarea><br />
-        <button id="submit-turn-btn">Submit Turn</button>
-    </div>
+<div id="container">
 
-    <button onclick="leaveRoom()">Leave Room</button>
+    <!-- Players List Sidebar -->
+    <aside id="players-list">
+        <h2><strong>Players:</strong> <span id="player-count">--</span></h2>
+        <ul id="players">
+            <!-- Player list items will be injected here dynamically -->
+            <li>Loading players...</li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main id="main-content">
+
+        <!-- Greeting/Profile Link -->
+        <div id="greeting-container">
+            <a id="greeting-link" href="/playerprofile">My Profile</a>
+        </div>
+
+        <!-- Game Card -->
+        <div class="card">
+            <h1>Game Room</h1>
+
+            <div>
+                <p><strong id="lastlinecap">Last line:</strong> <span id="last-line">Loading...</span></p>
+                <p id="current-player-wrapper"><strong>Current player:</strong> <span id="current-player">Loading...</span></p>
+                <p id="time-left-wrapper"><strong>Time left:</strong> <span id="time-left">--</span> seconds</p>
+
+                <p><strong>Status:</strong> <span id="game-status">--</span></p>
+            </div>
+
+            <div id="turn-section" style="display:none; margin-top: 20px;">
+                <textarea id="turn-text" rows="3" placeholder="Write your turn here..."></textarea><br />
+                <button id="submit-turn-btn">Submit Turn</button>
+            </div>
+
+            <button style="margin-top: 20px;" onclick="leaveRoom()">Leave Room</button>
+        </div>
+
+    </main>
+
 </div>
+
 </body>
 </html>
