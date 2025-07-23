@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.storypass.storypass.service.PdfExportService;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -23,16 +24,26 @@ public class GameRoomService {
     private final SimpMessagingTemplate messagingTemplate;
     private final StoryService storyService;
 
+    private final PdfExportService pdfExportService;
+
+
     @Autowired
     public GameRoomService(GameRoomRepository roomRepository,
                            StoryLineRepository storyLineRepository,
                            SimpMessagingTemplate messagingTemplate,
-                           StoryService storyService) {
+
+                           StoryService storyService,
+                           PdfExportService pdfExportService) {
+
         this.roomRepository = roomRepository;
         this.storyLineRepository = storyLineRepository;
         this.messagingTemplate = messagingTemplate;
         this.storyService = storyService;
+
+        this.pdfExportService = pdfExportService;
+
     }
+
 
     @Transactional
     public GameRoomDto createNewRoom(CreateRoomRequest roomRequest, User owner) {
@@ -408,5 +419,20 @@ public class GameRoomService {
                 room.getTimeLimitPerTurnInSeconds(),
                 room.getTurnsPerPlayer()
         );
+
     }
+    public byte[] getStoryAsPdf(Long roomId) {
+        GameRoom room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ResourceNotFoundException("GameRoom with ID " + roomId + " not found"));
+
+        if (room.getStory() == null) {
+            throw new ResourceNotFoundException("No story associated with this room.");
+        }
+
+        Long storyId = room.getStory().getId();
+        return pdfExportService.generatePdfForStory(storyId);
+    }
+
 }
+
+

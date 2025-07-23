@@ -38,7 +38,8 @@ public class SecurityConfig {
                                 "/favicon.ico",
                                 "/api/auth/**",
                                 "/game",
-                                "/ws/**"
+                                "/ws/**",
+                                "/api/rooms/*/export/pdf"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
