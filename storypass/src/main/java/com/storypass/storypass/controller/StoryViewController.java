@@ -23,6 +23,6 @@ public class StoryViewController {
         FullStoryDto story = storyService.getFullStoryById(id);
         model.addAttribute("story", story);
         model.addAttribute("storyId", id);
-        return "results"; // шаблон results.html
+        return "results";
     }
 }

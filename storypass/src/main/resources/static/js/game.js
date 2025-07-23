@@ -25,7 +25,7 @@ async function fetchCurrentUser() {
         const greetingLink = document.getElementById('greeting-link');
         if (greetingLink) {
             greetingLink.textContent = `Hello, ${currentUserNickname}`;
-            greetingLink.href = `/profile/${currentUserNickname}`;
+            greetingLink.href = `/profile/`;
         }
     } catch (e) {
         console.error(e);
@@ -89,7 +89,7 @@ function updatePlayersList(players) {
 }
 
 function updateGameStateUI(state) {
-    // Находим все наши блоки и элементы
+
     const gameInfoBlock = document.getElementById('game-info-block');
     const finishedBlock = document.getElementById('finished-block');
     const turnSection = document.getElementById('turn-section');
@@ -125,7 +125,7 @@ function updateGameStateUI(state) {
         document.getElementById('current-player').textContent = state.currentPlayerNickname || 'N/A';
         if (!isMyTurn) document.getElementById('turn-text').value = '';
 
-        // Логика таймера
+
         let timeLeft = state.timeLeftSeconds ?? 0;
         document.getElementById('time-left').textContent = timeLeft;
         countdownInterval = setInterval(() => {
@@ -304,7 +304,8 @@ function displayStory(storyData) {
 
 
 function exportStoryAsPdf(roomId) {
-    window.location.href = `/api/rooms/${roomId}/export/pdf`;
+    window.location.href = `/api/export/pdf?storyId=${parseInt(roomId, 10) + 1}`;
 }
+
 
 
