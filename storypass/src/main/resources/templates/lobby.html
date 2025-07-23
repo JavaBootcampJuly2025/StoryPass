@@ -13,18 +13,17 @@
 <div class="card">
   <h1>Lobby</h1>
 
-  <div id="room-list">
+  <div id="room-list" style="display:block;">
     <h3>Public Rooms</h3>
     <ul id="rooms">
-      <!-- Will be dynamically populated -->
+
     </ul>
   </div>
 
   <button onclick="toggleCreateRoomForm()">Create Room</button>
-  <button onclick="joinRoom()">Join Room</button>
   <button onclick="logout()">Logout</button>
 
-  <div id="create-room-form" style="display:none; margin-top:20px;">
+  <div id="create-room-form" style="display:none; margin-top:0px;">
     <h3>Create New Room</h3>
     <form id="roomForm">
       <label>

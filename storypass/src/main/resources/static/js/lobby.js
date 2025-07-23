@@ -77,6 +77,8 @@ function connectWebSocket() {
 function toggleCreateRoomForm() {
   const form = document.getElementById('create-room-form');
   form.style.display = form.style.display === 'none' ? 'block' : 'none';
+  const roomlist = document.getElementById('room-list');
+  roomlist.style.display = roomlist.style.display === 'block' ? 'none' : 'block';
 }
 
 

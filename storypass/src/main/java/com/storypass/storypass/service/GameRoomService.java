@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -129,13 +130,34 @@ public class GameRoomService {
     }
 
     @Transactional(readOnly = true)
-    public GameStateDto getGameState(Long roomId) {
+    public GameStateDto getGameState(Long roomId, User currentUser) {
         GameRoom room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new ResourceNotFoundException("Game room with ID " + roomId + " not found"));
 
-        String lastLine = (room.getStory() != null && room.getStory().getStoryLines() != null && !room.getStory().getStoryLines().isEmpty())
-                ? room.getStory().getStoryLines().get(room.getStory().getStoryLines().size() - 1).getText()
-                : "";
+        List<User> players = new ArrayList<>(room.getPlayers());
+        List<StoryLine> lines = room.getStory().getStoryLines().stream()
+                .sorted(Comparator.comparing(StoryLine::getId))
+                .collect(Collectors.toList());
+
+
+        String visibleLine = "";
+
+        // Find current user index in player list
+        int currentIndex = players.indexOf(currentUser);
+        if (currentIndex != -1 && !lines.isEmpty()) {
+            // Get previous player's index
+            int previousIndex = (currentIndex - 1 + players.size()) % players.size();
+            User previousPlayer = players.get(previousIndex);
+
+            // Find last line written by previous player
+            for (int i = lines.size() - 1; i >= 0; i--) {
+                StoryLine line = lines.get(i);
+                if (line.getAuthor().equals(previousPlayer)) {
+                    visibleLine = line.getText();
+                    break;
+                }
+            }
+        }
 
         String currentPlayerNickname = (room.getCurrentPlayer() != null)
                 ? room.getCurrentPlayer().getNickname()
@@ -147,8 +169,10 @@ public class GameRoomService {
 
         String status = room.getStatus() != null ? room.getStatus().name() : "UNKNOWN";
 
-        return new GameStateDto(lastLine, currentPlayerNickname, timeLeft, ownerNickname, status);
+        return new GameStateDto(visibleLine, currentPlayerNickname, timeLeft, ownerNickname, status);
     }
+
+
 
 
     @Transactional
@@ -293,9 +317,39 @@ public class GameRoomService {
 
 
     void broadcastGameState(GameRoom room) {
-        GameStateDto state = getGameState(room.getId());
+        List<User> players = new ArrayList<>(room.getPlayers());
+        List<StoryLine> lines = room.getStory().getStoryLines().stream()
+                .sorted(Comparator.comparing(StoryLine::getId))
+                .collect(Collectors.toList());
+
+        String visibleLine = "";
+
+
+        if (room.getCurrentPlayer() != null && !lines.isEmpty()) {
+            int currentIndex = players.indexOf(room.getCurrentPlayer());
+            int previousIndex = (currentIndex - 1 + players.size()) % players.size();
+            User previousPlayer = players.get(previousIndex);
+
+            for (int i = lines.size() - 1; i >= 0; i--) {
+                StoryLine line = lines.get(i);
+                if (line.getAuthor().equals(previousPlayer)) {
+                    visibleLine = line.getText();
+                    break;
+                }
+            }
+        }
+
+        GameStateDto state = new GameStateDto(
+                visibleLine,
+                room.getCurrentPlayer() != null ? room.getCurrentPlayer().getNickname() : "",
+                room.getTimeLeftForCurrentTurnInSeconds(),
+                room.getOwner() != null ? room.getOwner().getNickname() : "",
+                room.getStatus() != null ? room.getStatus().name() : "UNKNOWN"
+        );
+
         messagingTemplate.convertAndSend("/topic/room/" + room.getId() + "/state", state);
     }
+
 
     private void broadcastRoomList() {
         List<GameRoomDto> updatedRooms = roomRepository.findAll()
