@@ -116,7 +116,8 @@ function updateGameStateUI(state) {
         document.getElementById('lastlinecap').style.display = 'block';
         document.getElementById('current-player-wrapper').style.display = 'block';
         document.getElementById('time-left-wrapper').style.display = 'block';
-        document.getElementById('lastlinecap').style.visibility = isMyTurn ? 'visible' : 'hidden';
+        document.getElementById('lastlinecap').textContent = isMyTurn ? 'Last line:' : 'is typing..';
+        document.getElementById('last-line').style.visibility = isMyTurn ? 'visible' : 'hidden';
 
         turnSection.style.display = isMyTurn ? 'block' : 'none';
 
