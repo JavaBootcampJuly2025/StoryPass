@@ -2,6 +2,7 @@ package com.storypass.storypass.service;
 
 import com.storypass.storypass.dto.FullStoryDto;
 import com.storypass.storypass.dto.StoryLineDto;
+import com.storypass.storypass.model.Story;
 import lombok.extern.java.Log;
 import net.sf.jasperreports.engine.*;
 import org.springframework.stereotype.Service;
@@ -21,12 +22,18 @@ public class PdfExportService {
         this.storyService = storyService;
     }
 
+    public String getStoryTitleById(Long storyId) {
+        return storyService.getFullStoryById(storyId).title();
+    }
+
+
+
     public byte[] generatePdfForStory(Long storyId) {
         try {
             FullStoryDto story = storyService.getFullStoryById(storyId);
 
             String fullText = story.lines().stream()
-                    .map(line -> line.authorNickname() + ": " + line.text())
+                    .map(line -> line.authorNickname() + ":\n" + line.text() + "\n")
                     .collect(Collectors.joining("\n"));
 
             InputStream templateStream = getClass().getResourceAsStream("/jasper-reports/templates/StoryPass.jrxml");
@@ -35,9 +42,11 @@ public class PdfExportService {
 
             Map<String, Object> params = new HashMap<>();
             params.put("title", story.title());
+           // System.out.println(story.title());
             params.put("text", fullText);
 
-            JasperPrint jasperPrint = JasperFillManager.fillReport(compiledTemplate, params);
+            JasperPrint jasperPrint = JasperFillManager.fillReport(compiledTemplate, params, new JREmptyDataSource(1));
+
 
             return JasperExportManager.exportReportToPdf(jasperPrint);
         } catch (JRException e) {

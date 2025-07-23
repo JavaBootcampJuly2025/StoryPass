@@ -13,22 +13,16 @@
 
 	<title>
 		<band height="60">
-			<staticText>
+			<textField>
 				<reportElement x="0" y="0" width="555" height="30"/>
 				<textElement textAlignment="Center">
 					<font size="18" isBold="true"/>
-				</textElement>
-				<text><![CDATA[StoryPass:]]></text>
-			</staticText>
-			<textField>
-				<reportElement x="0" y="30" width="555" height="20"/>
-				<textElement textAlignment="Center">
-					<font size="16"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{title}]]></textFieldExpression>
 			</textField>
 		</band>
 	</title>
+
 
 	<detail>
 		<band height="700">
