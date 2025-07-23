@@ -4,7 +4,11 @@ if (!token) {
   window.location.href = '/login.html';
 }
 
-// Fetch all available rooms
+
+let stompClient = null;
+
+
+
 async function fetchRooms() {
   try {
     const res = await fetch('/api/rooms', {
@@ -24,18 +28,10 @@ async function fetchRooms() {
     }
 
     const rooms = await res.json();
-    const list = document.getElementById('rooms');
-    list.innerHTML = '';
 
-    rooms.forEach(room => {
-      const li = document.createElement('li');
-      li.innerHTML = `
-        <strong>${room.title}</strong> - ${room.currentPlayerCount}/${room.maxPlayers} players 
-        (${room.isPublic ? 'Public' : 'Private'}) - Owner: ${room.ownerNickname}
-        <button onclick="joinRoomPrompt(${room.id}, ${room.isPublic})">Join</button>
-      `;
-      list.appendChild(li);
-    });
+    console.log('Rooms:', rooms);
+    renderRoomList(rooms);
+
 
   } catch (error) {
     console.error('Error fetching rooms:', error);
@@ -43,13 +39,106 @@ async function fetchRooms() {
   }
 }
 
-// Toggle create room form
-function toggleCreateRoomForm() {
-  const form = document.getElementById('create-room-form');
-  form.style.display = form.style.display === 'none' ? 'block' : 'none';
+
+
+function renderRoomList(rooms) {
+  const list = document.getElementById('rooms');
+  list.innerHTML = '';
+
+  rooms.forEach(room => {
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <strong>${room.title}</strong> - ${room.currentPlayerCount}/${room.maxPlayers} players 
+      (${room.isPublic ? 'Public' : 'Private'}) - Owner: ${room.ownerNickname}
+      <button onclick="joinRoomPrompt(${room.id}, ${room.isPublic})">Join</button>
+    `;
+    list.appendChild(li);
+  });
 }
 
-// Handle create room form submission
+
+function connectWebSocket() {
+  const socket = new SockJS('/ws');
+  stompClient = Stomp.over(socket);
+
+  stompClient.connect({}, (frame) => {
+    console.log('Connected to WebSocket:', frame);
+
+    stompClient.subscribe('/topic/rooms', (message) => {
+      const updatedRooms = JSON.parse(message.body);
+      renderRoomList(updatedRooms);
+    });
+  }, (error) => {
+    console.error('WebSocket error:', error);
+  });
+}
+
+
+
+function handlePublicCheckboxChange() {
+  const isPublic = document.getElementById('isPublic').checked;
+  const roomCodeInput = document.getElementById('roomCode');
+  roomCodeInput.disabled = isPublic;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const isPublicCheckbox = document.getElementById('isPublic');
+
+
+  handlePublicCheckboxChange();
+
+
+  isPublicCheckbox.addEventListener('change', handlePublicCheckboxChange);
+});
+
+
+document.addEventListener('DOMContentLoaded', async () => {
+  const greetingLink = document.getElementById('greeting-link');
+
+  try {
+    const res = await fetch('/api/me', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (res.ok) {
+      const user = await res.json();
+      greetingLink.textContent = `Hello, ${user.nickname}!`;
+    } else {
+      greetingLink.textContent = 'Hello!';
+    }
+  } catch (e) {
+    console.error('Failed to fetch user data:', e);
+    greetingLink.textContent = 'Hello!';
+  }
+});
+
+
+
+
+function toggleCreateRoomForm() {
+  const form = document.getElementById('create-room-form');
+  const togglecreateform = document.getElementById('togglecreateform');
+  const roomlist = document.getElementById('room-list');
+
+  const isFormVisible = form.style.display === 'block';
+
+  if (isFormVisible) {
+    form.style.display = 'none';
+    togglecreateform.style.display = 'inline-block';
+    roomlist.style.display = 'block';
+  } else {
+    form.style.display = 'block';
+    togglecreateform.style.display = 'none';
+    roomlist.style.display = 'none';
+  }
+}
+
+
+
+
+
 document.getElementById('roomForm').addEventListener('submit', async (e) => {
   e.preventDefault();
 
@@ -102,8 +191,7 @@ document.getElementById('roomForm').addEventListener('submit', async (e) => {
       return;
     }
 
-    const data = await res.json(); // Expecting the new room with `id`
-    // Redirect to game room immediately
+    const data = await res.json();
     window.location.href = `/game?roomId=${data.id}`;
 
   } catch (e) {
@@ -112,7 +200,7 @@ document.getElementById('roomForm').addEventListener('submit', async (e) => {
   }
 });
 
-// Handle joining a room (with optional room code)
+
 async function joinRoomPrompt(roomId, isPublic) {
   let roomCode = '';
 
@@ -144,7 +232,6 @@ async function joinRoomPrompt(roomId, isPublic) {
       return;
     }
 
-    // Redirect to game room after successful join
     window.location.href = `/game?roomId=${roomId}`;
 
   } catch (e) {
@@ -153,7 +240,7 @@ async function joinRoomPrompt(roomId, isPublic) {
   }
 }
 
-// Logout handler
+
 function logout() {
   localStorage.removeItem('token');
   window.location.href = '/login.html';
@@ -161,3 +248,4 @@ function logout() {
 
 // Initial room fetch
 fetchRooms();
+connectWebSocket();

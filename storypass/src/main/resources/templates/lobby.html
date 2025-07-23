@@ -4,60 +4,64 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Lobby</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/lobby.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
 </head>
 <body>
+<div id="greeting-container" style="position: absolute; top: 10px; right: 10px;">
+  <a id="greeting-link" href="/playerprofile" style="text-decoration: none; font-weight: bold;"></a>
+</div>
+
 <div class="card">
   <h1>Lobby</h1>
 
-  <div id="room-list">
-    <h3>Public Rooms</h3>
-    <ul id="rooms">
-      <!-- Will be dynamically populated -->
-    </ul>
+  <div id="room-list" style="display:block;">
+    <h3>Rooms</h3>
+    <ul id="rooms"></ul>
   </div>
 
-  <button onclick="toggleCreateRoomForm()">Create Room</button>
-  <button onclick="joinRoom()">Join Room</button>
+  <button id="togglecreateform" onclick="toggleCreateRoomForm()">Create Room</button>
   <button onclick="logout()">Logout</button>
+</div>
 
-  <div id="create-room-form" style="display:none; margin-top:20px;">
-    <h3>Create New Room</h3>
-    <form id="roomForm">
-      <label>
-        Title:<br />
-        <input type="text" id="title" required />
-      </label><br /><br />
+<!-- Create room form OUTSIDE the card -->
+<div id="create-room-form" style="display:none; margin-top:0px;">
+  <h3>Create New Room</h3>
+  <form id="roomForm">
+    <label>
+      Title:
+      <input type="text" id="title" required />
+    </label>
 
-      <label>
-        Public:
-        <input type="checkbox" id="isPublic" checked />
-      </label><br /><br />
+    <label>
+      Public:
+      <input type="checkbox" id="isPublic" checked onchange="handlePublicCheckboxChange()" />
+    </label>
 
-      <label>
-        Room Code (if private):<br />
-        <input type="text" id="roomCode" />
-      </label><br /><br />
+    <label>
+      Room Code (if private):
+      <input type="text" id="roomCode" />
+    </label>
 
-      <label>
-        Max Players:<br />
-        <input type="number" id="maxPlayers" min="2" max="10" value="4" required />
-      </label><br /><br />
+    <label>
+      Max Players:
+      <input type="number" id="maxPlayers" min="2" max="10" value="4" required />
+    </label>
 
-      <label>
-        Time Limit Per Turn (seconds):<br />
-        <input type="number" id="timeLimitPerTurnInSeconds" min="10" max="300" value="60" required />
-      </label><br /><br />
+    <label>
+      Time Limit Per Turn (seconds):
+      <input type="number" id="timeLimitPerTurnInSeconds" min="10" max="300" value="60" required />
+    </label>
 
-      <label>
-        Turns Per Player:<br />
-        <input type="number" id="turnsPerPlayer" min="1" max="10" value="3" required />
-      </label><br /><br />
+    <label>
+      Turns Per Player:
+      <input type="number" id="turnsPerPlayer" min="1" max="10" value="3" required />
+    </label>
 
-      <button type="submit">Create Room</button>
-      <button type="button" onclick="toggleCreateRoomForm()">Cancel</button>
-    </form>
-  </div>
+    <button type="submit">Create Room</button>
+    <button type="button" onclick="toggleCreateRoomForm()">Cancel</button>
+  </form>
 </div>
 
 <script src="/js/lobby.js"></script>

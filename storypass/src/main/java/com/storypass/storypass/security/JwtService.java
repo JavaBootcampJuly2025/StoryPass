@@ -6,7 +6,7 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets; // <-- Добавьте этот импорт
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 import io.jsonwebtoken.security.Keys;
@@ -29,7 +29,7 @@ public class JwtService {
         return Jwts.builder()
                 .setSubject(login)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // Token expiration time is 1 hour
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60*8)) // Token expiration time is 1 hour
                 .signWith(this.key, SignatureAlgorithm.HS256)
                 .compact();
     }

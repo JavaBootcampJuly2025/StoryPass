@@ -62,7 +62,7 @@ public class GameRoomController {
                                                 @AuthenticationPrincipal User user,
                                                 @RequestBody(required = false) JoinPrivateRoomRequest joinRequest) {
 
-        // Improved join logic: If user already joined, just return the room DTO without error
+
         GameRoomDto gameRoomDTO = gameRoomService.joinRoom(id, user, joinRequest);
         return ResponseEntity.ok(gameRoomDTO);
     }
@@ -76,10 +76,12 @@ public class GameRoomController {
     }
 
     @GetMapping("/{id}/state")
-    public ResponseEntity<GameStateDto> getGameState(@PathVariable Long id) {
-        GameStateDto gameStateDto = gameRoomService.getGameState(id);
+    public ResponseEntity<GameStateDto> getGameState(@PathVariable Long id,
+                                                     @AuthenticationPrincipal User currentUser) {
+        GameStateDto gameStateDto = gameRoomService.getGameState(id, currentUser);
         return ResponseEntity.ok(gameStateDto);
     }
+
 
     @PostMapping("/{id}/start")
     public ResponseEntity<Void> startGame(@PathVariable Long id,

@@ -30,7 +30,6 @@ public class User implements UserDetails {
     @Column(unique = true, nullable = false, length = 15)
     private String nickname;
 
-    // --- Методы UserDetails остаются без изменений ---
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.emptyList();
@@ -60,7 +59,6 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
 
     // These two overrides make it so .contains(user) and .remove(user) works properly.
     // Not fully sure how (made by AI), but it works
