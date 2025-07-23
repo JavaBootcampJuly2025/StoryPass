@@ -1,7 +1,9 @@
+
 package com.storypass.storypass.controller;
 
-import com.storypass.storypass.dto.FullStoryDto;
-import com.storypass.storypass.service.StoryService;
+import com.storypass.storypass.service.PdfExportService;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,15 +14,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/stories")
 public class StoryController {
 
-    private final StoryService storyService;
+    private final PdfExportService pdfExportService;
 
-    public StoryController(StoryService storyService) {
-        this.storyService = storyService;
+    public StoryController(PdfExportService pdfExportService) {
+        this.pdfExportService = pdfExportService;
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<FullStoryDto> getFullStory(@PathVariable Long id) {
-        FullStoryDto fullStory = storyService.getFullStoryById(id);
-        return ResponseEntity.ok(fullStory);
+    @GetMapping("/{id}/export")
+    public ResponseEntity<byte[]> exportStoryAsPdf(@PathVariable Long id) {
+        byte[] pdfBytes = pdfExportService.generatePdfForStory(id);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=story-" + id + ".pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdfBytes);
     }
 }
