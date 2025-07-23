@@ -357,6 +357,7 @@ form#roomForm label input[type="checkbox"] {
     font-style: italic;
     color: #555;
     margin-bottom: 25px;
+
 }
 
 /* Styles for footer and button in modal window  */
@@ -380,4 +381,5 @@ form#roomForm label input[type="checkbox"] {
 
 #export-pdf-btn:hover {
     background-color: #45a049;
+
 }

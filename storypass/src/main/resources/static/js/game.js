@@ -41,7 +41,9 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Button "View Full Story" clicked!');
         fetchAndShowStory(roomId);
     });
+
     document.getElementById('export-pdf-btn').addEventListener('click', () => exportStoryAsPdf(roomId));
+
 
     const storyModal = document.getElementById('story-modal');
     storyModal.querySelector('.modal-close-btn').addEventListener('click', () => storyModal.style.display = 'none');
@@ -138,6 +140,7 @@ function updateGameStateUI(state) {
             }
         }, 1000);
 
+
     } else if (state.status === 'WAITING_FOR_PLAYERS') {
         gameInfoBlock.style.display = 'block';
         document.getElementById('lastlinecap').style.display = 'none';
@@ -145,6 +148,7 @@ function updateGameStateUI(state) {
         document.getElementById('time-left-wrapper').style.display = 'none';
 
         document.getElementById('game-status').textContent = state.status;
+
 
         const isOwner = currentUserNickname === state.ownerNickname;
         if (isOwner) {
@@ -298,7 +302,9 @@ function displayStory(storyData) {
     storyModal.style.display = 'flex';
 }
 
+
 function exportStoryAsPdf(roomId) {
     window.location.href = `/api/rooms/${roomId}/export/pdf`;
 }
+
 

@@ -23,19 +23,25 @@ public class GameRoomService {
     private final StoryLineRepository storyLineRepository;
     private final SimpMessagingTemplate messagingTemplate;
     private final StoryService storyService;
+
     private final PdfExportService pdfExportService;
+
 
     @Autowired
     public GameRoomService(GameRoomRepository roomRepository,
                            StoryLineRepository storyLineRepository,
                            SimpMessagingTemplate messagingTemplate,
+
                            StoryService storyService,
                            PdfExportService pdfExportService) {
+
         this.roomRepository = roomRepository;
         this.storyLineRepository = storyLineRepository;
         this.messagingTemplate = messagingTemplate;
         this.storyService = storyService;
+
         this.pdfExportService = pdfExportService;
+
     }
 
 
@@ -426,5 +432,7 @@ public class GameRoomService {
         Long storyId = room.getStory().getId();
         return pdfExportService.generatePdfForStory(storyId);
     }
+
 }
+
 

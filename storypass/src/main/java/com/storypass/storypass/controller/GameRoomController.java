@@ -106,6 +106,7 @@ public class GameRoomController {
         FullStoryDto fullStory = gameRoomService.getFullStoryForRoom(id);
         return ResponseEntity.ok(fullStory);
     }
+
     @GetMapping(value = "/{id}/export/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> exportStoryToPdf(@PathVariable Long id) {
         byte[] pdfContents = gameRoomService.getStoryAsPdf(id);
@@ -119,3 +120,4 @@ public class GameRoomController {
                 .body(pdfContents);
     }
 }
+
