@@ -4,7 +4,11 @@ if (!token) {
   window.location.href = '/login.html';
 }
 
-// Fetch all available rooms
+
+let stompClient = null;
+
+
+
 async function fetchRooms() {
   try {
     const res = await fetch('/api/rooms', {
@@ -24,18 +28,10 @@ async function fetchRooms() {
     }
 
     const rooms = await res.json();
-    const list = document.getElementById('rooms');
-    list.innerHTML = '';
 
-    rooms.forEach(room => {
-      const li = document.createElement('li');
-      li.innerHTML = `
-        <strong>${room.title}</strong> - ${room.currentPlayerCount}/${room.maxPlayers} players 
-        (${room.isPublic ? 'Public' : 'Private'}) - Owner: ${room.ownerNickname}
-        <button onclick="joinRoomPrompt(${room.id}, ${room.isPublic})">Join</button>
-      `;
-      list.appendChild(li);
-    });
+    console.log('Rooms:', rooms);
+    renderRoomList(rooms);
+
 
   } catch (error) {
     console.error('Error fetching rooms:', error);
@@ -43,13 +39,47 @@ async function fetchRooms() {
   }
 }
 
-// Toggle create room form
+
+
+function renderRoomList(rooms) {
+  const list = document.getElementById('rooms');
+  list.innerHTML = '';
+
+  rooms.forEach(room => {
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <strong>${room.title}</strong> - ${room.currentPlayerCount}/${room.maxPlayers} players 
+      (${room.isPublic ? 'Public' : 'Private'}) - Owner: ${room.ownerNickname}
+      <button onclick="joinRoomPrompt(${room.id}, ${room.isPublic})">Join</button>
+    `;
+    list.appendChild(li);
+  });
+}
+
+
+function connectWebSocket() {
+  const socket = new SockJS('/ws');
+  stompClient = Stomp.over(socket);
+
+  stompClient.connect({}, (frame) => {
+    console.log('Connected to WebSocket:', frame);
+
+    stompClient.subscribe('/topic/rooms', (message) => {
+      const updatedRooms = JSON.parse(message.body);
+      renderRoomList(updatedRooms);
+    });
+  }, (error) => {
+    console.error('WebSocket error:', error);
+  });
+}
+
+
 function toggleCreateRoomForm() {
   const form = document.getElementById('create-room-form');
   form.style.display = form.style.display === 'none' ? 'block' : 'none';
 }
 
-// Handle create room form submission
+
 document.getElementById('roomForm').addEventListener('submit', async (e) => {
   e.preventDefault();
 
@@ -102,8 +132,7 @@ document.getElementById('roomForm').addEventListener('submit', async (e) => {
       return;
     }
 
-    const data = await res.json(); // Expecting the new room with `id`
-    // Redirect to game room immediately
+    const data = await res.json();
     window.location.href = `/game?roomId=${data.id}`;
 
   } catch (e) {
@@ -112,7 +141,7 @@ document.getElementById('roomForm').addEventListener('submit', async (e) => {
   }
 });
 
-// Handle joining a room (with optional room code)
+
 async function joinRoomPrompt(roomId, isPublic) {
   let roomCode = '';
 
@@ -144,7 +173,6 @@ async function joinRoomPrompt(roomId, isPublic) {
       return;
     }
 
-    // Redirect to game room after successful join
     window.location.href = `/game?roomId=${roomId}`;
 
   } catch (e) {
@@ -153,7 +181,7 @@ async function joinRoomPrompt(roomId, isPublic) {
   }
 }
 
-// Logout handler
+
 function logout() {
   localStorage.removeItem('token');
   window.location.href = '/login.html';
@@ -161,3 +189,4 @@ function logout() {
 
 // Initial room fetch
 fetchRooms();
+connectWebSocket();
