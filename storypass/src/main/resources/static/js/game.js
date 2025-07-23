@@ -13,21 +13,15 @@ if (!roomId) {
 let currentUserNickname = null;
 let stompClient = null;
 let countdownInterval = null;
-let timeLeft = 0;
-let hasAutoSubmitted = false;
 
 async function fetchCurrentUser() {
     try {
         const res = await fetch('/api/me', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
-
         if (!res.ok) throw new Error('Failed to fetch user info');
-
         const data = await res.json();
         currentUserNickname = data.nickname;
-
-        // Update greeting link if present
         const greetingLink = document.getElementById('greeting-link');
         if (greetingLink) {
             greetingLink.textContent = `Hello, ${currentUserNickname}`;
@@ -43,6 +37,17 @@ async function fetchCurrentUser() {
 
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('submit-turn-btn').addEventListener('click', submitTurn);
+    document.getElementById('view-story-btn').addEventListener('click', () => {
+        console.log('Button "View Full Story" clicked!');
+        fetchAndShowStory(roomId);
+    });
+    const storyModal = document.getElementById('story-modal');
+    storyModal.querySelector('.modal-close-btn').addEventListener('click', () => storyModal.style.display = 'none');
+    storyModal.addEventListener('click', (event) => {
+        if (event.target === storyModal) {
+            storyModal.style.display = 'none';
+        }
+    });
 });
 
 async function fetchGameState() {
@@ -50,13 +55,9 @@ async function fetchGameState() {
         const res = await fetch(`/api/rooms/${roomId}/state`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
-
         if (!res.ok) return;
-
         const state = await res.json();
         updateGameStateUI(state);
-
-        // Update players list
         updatePlayersList(state.players || []);
     } catch (e) {
         console.error(e);
@@ -66,100 +67,89 @@ async function fetchGameState() {
 function updatePlayersList(players) {
     const playersUl = document.getElementById('players');
     if (!playersUl) return;
-
-    playersUl.innerHTML = ''; // Clear existing players
-
+    playersUl.innerHTML = '';
     if (players.length === 0) {
         playersUl.innerHTML = '<li>No players in room</li>';
         return;
     }
-
     players.forEach(player => {
         const li = document.createElement('li');
         li.textContent = player.nickname;
-
         if (player.nickname === currentUserNickname) {
             li.style.fontWeight = '700';
             li.style.color = '#4caf50';
             li.textContent += ' (You)';
         }
-
         playersUl.appendChild(li);
     });
 }
 
 function updateGameStateUI(state) {
-    const lastLineElem = document.getElementById('last-line');
-    const isMyTurn = currentUserNickname === state.currentPlayerNickname;
-    const lastlinecap = document.getElementById('lastlinecap');
+    // Находим все наши блоки и элементы
+    const gameInfoBlock = document.getElementById('game-info-block');
+    const finishedBlock = document.getElementById('finished-block');
+    const turnSection = document.getElementById('turn-section');
+    const viewStoryBtn = document.getElementById('view-story-btn');
+    const leaveRoomBtn = document.getElementById('leave-room-btn');
 
+    gameInfoBlock.style.display = 'none';
+    finishedBlock.style.display = 'none';
+    turnSection.style.display = 'none';
+    viewStoryBtn.style.display = 'none';
+    leaveRoomBtn.style.display = 'inline-block';
+    if (countdownInterval) clearInterval(countdownInterval);
 
-    if (isMyTurn) {
-        lastLineElem.textContent = state.lastLine || '(No lines yet)';
-        lastLineElem.style.visibility = "visible";
-        lastlinecap.style.visibility = "visible";
-    } else {
-        lastLineElem.style.visibility = "hidden";
-        lastlinecap.style.visibility = "hidden";
-    }
-
-    const currentPlayerWrapper = document.getElementById('current-player-wrapper');
-    const timeLeftWrapper = document.getElementById('time-left-wrapper');
-
-    const gameInProgress = state.status === 'IN_PROGRESS';
-
-    if (gameInProgress) {
-        document.getElementById('current-player').textContent = state.currentPlayerNickname || 'N/A';
-    }
-
-    if (countdownInterval) {
-        clearInterval(countdownInterval);
-    }
-
-    timeLeft = state.timeLeftSeconds ?? 0;
-
-    if (gameInProgress) {
-        document.getElementById('time-left').textContent = timeLeft;
-
-        currentPlayerWrapper.style.display = 'block';
-        timeLeftWrapper.style.display = 'block';
-    } else {
-        currentPlayerWrapper.style.display = 'none';
-        timeLeftWrapper.style.display = 'none';
-    }
-
-    countdownInterval = setInterval(() => {
-        if (timeLeft > 0) {
-            timeLeft--;
-            if (gameInProgress) {
-                document.getElementById('time-left').textContent = timeLeft;
-            }
-            hasAutoSubmitted = false;
-        } else {
-            clearInterval(countdownInterval);
-            if (!hasAutoSubmitted && isMyTurn && state.status === 'IN_PROGRESS') {
-                hasAutoSubmitted = true;
-                let text = document.getElementById('turn-text').value.trim();
-                if (!text) text = '(No input provided)';
-                submitTurnAuto(text);
-            }
-        }
-    }, 1000);
-
-    document.getElementById('game-status').textContent = state.status || 'UNKNOWN';
-
-    const isOwner = currentUserNickname === state.ownerNickname;
-
-    document.getElementById('turn-section').style.display = (isMyTurn && gameInProgress) ? 'block' : 'none';
-
-    if (!isMyTurn) {
-        document.getElementById('turn-text').value = '';
-    }
-
-    if (state.status === 'WAITING_FOR_PLAYERS' && isOwner) {
-        showStartGameButton(state.players, state.maxPlayers);
-    } else {
+    if (state.status === 'FINISHED') {
+        finishedBlock.style.display = 'block';
+        viewStoryBtn.style.display = 'inline-block';
         removeStartGameButton();
+    } else if (state.status === 'IN_PROGRESS') {
+        removeStartGameButton();
+        gameInfoBlock.style.display = 'block';
+
+        const isMyTurn = currentUserNickname === state.currentPlayerNickname;
+
+        document.getElementById('lastlinecap').style.display = 'block';
+        document.getElementById('current-player-wrapper').style.display = 'block';
+        document.getElementById('time-left-wrapper').style.display = 'block';
+        document.getElementById('lastlinecap').style.visibility = isMyTurn ? 'visible' : 'hidden';
+
+        turnSection.style.display = isMyTurn ? 'block' : 'none';
+
+        document.getElementById('game-status').textContent = state.status;
+        document.getElementById('last-line').textContent = state.lastLine || '(No lines yet)';
+        document.getElementById('current-player').textContent = state.currentPlayerNickname || 'N/A';
+        if (!isMyTurn) document.getElementById('turn-text').value = '';
+
+        // Логика таймера
+        let timeLeft = state.timeLeftSeconds ?? 0;
+        document.getElementById('time-left').textContent = timeLeft;
+        countdownInterval = setInterval(() => {
+            if (timeLeft > 0) {
+                timeLeft--;
+                document.getElementById('time-left').textContent = timeLeft;
+            } else {
+                clearInterval(countdownInterval);
+                if (isMyTurn) {
+                    submitTurnAuto('(No input provided)');
+                }
+            }
+        }, 1000);
+
+    } else if (state.status === 'WAITING_FOR_PLAYERS') {
+        gameInfoBlock.style.display = 'block';
+        document.getElementById('lastlinecap').style.display = 'none';
+        document.getElementById('current-player-wrapper').style.display = 'none';
+        document.getElementById('time-left-wrapper').style.display = 'none';
+
+        document.getElementById('game-status').textContent = state.status;
+
+        const isOwner = currentUserNickname === state.ownerNickname;
+        if (isOwner) {
+            showStartGameButton(state.players, state.maxPlayers);
+        } else {
+            removeStartGameButton();
+        }
     }
 }
 
@@ -169,23 +159,12 @@ async function submitTurn() {
         alert('Please enter some text.');
         return;
     }
-
     try {
-        const res = await fetch(`/api/rooms/${roomId}/turn`, {
+        await fetch(`/api/rooms/${roomId}/turn`, {
             method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({ text })
         });
-
-        if (!res.ok) {
-            const err = await res.json();
-            alert('Failed to submit turn: ' + (err.message || res.statusText));
-            return;
-        }
-
         document.getElementById('turn-text').value = '';
     } catch (e) {
         console.error(e);
@@ -195,21 +174,11 @@ async function submitTurn() {
 
 async function submitTurnAuto(text) {
     try {
-        const res = await fetch(`/api/rooms/${roomId}/turn`, {
+        await fetch(`/api/rooms/${roomId}/turn`, {
             method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({ text })
         });
-
-        if (!res.ok) {
-            const err = await res.json();
-            console.warn('Auto-submit failed:', err.message || res.statusText);
-            return;
-        }
-
         document.getElementById('turn-text').value = '';
     } catch (e) {
         console.error('Error auto-submitting turn:', e);
@@ -218,18 +187,11 @@ async function submitTurnAuto(text) {
 
 async function leaveRoom() {
     if (!confirm('Are you sure you want to leave the room?')) return;
-
     try {
-        const res = await fetch(`/api/rooms/${roomId}/leave`, {
+        await fetch(`/api/rooms/${roomId}/leave`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}` }
         });
-
-        if (!res.ok) {
-            alert('Failed to leave the room.');
-            return;
-        }
-
         window.location.href = '/lobby';
     } catch (e) {
         console.error(e);
@@ -239,13 +201,14 @@ async function leaveRoom() {
 
 function showStartGameButton(players, maxPlayers) {
     const btnExists = document.getElementById('start-game-btn');
-    if (btnExists || players.length < 2) return;
+    if (btnExists) btnExists.remove();
+    if (players.length < 2) return;
 
     const btn = document.createElement('button');
     btn.textContent = 'Start Game';
     btn.id = 'start-game-btn';
     btn.onclick = () => startGame(roomId);
-    document.querySelector('.card').appendChild(btn);
+    document.getElementById('action-buttons').appendChild(btn);
 }
 
 function removeStartGameButton() {
@@ -259,15 +222,10 @@ async function startGame(roomId) {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}` }
         });
-
         if (!res.ok) {
             const err = await res.json();
             alert('Failed to start game: ' + (err.message || res.statusText));
-            return;
         }
-
-        alert('Game started!');
-        removeStartGameButton();
     } catch (e) {
         alert('Error starting game.');
         console.error(e);
@@ -295,3 +253,45 @@ function connectWebSocket() {
     await fetchGameState();
     connectWebSocket();
 })();
+
+async function fetchAndShowStory(roomId) {
+    try {
+        const res = await fetch(`/api/rooms/${roomId}/full-story`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) {
+            throw new Error('Failed to fetch the story. It might not be finished yet.');
+        }
+        const storyData = await res.json();
+        console.log('Response from server', storyData);
+        displayStory(storyData);
+    } catch (e) {
+        console.error(e);
+        alert(e.message);
+    }
+}
+
+
+function displayStory(storyData) {
+    const storyModal = document.getElementById('story-modal');
+    const titleElem = document.getElementById('story-title');
+    const participantsElem = document.getElementById('story-participants'); // Находим новый элемент
+    const contentElem = document.getElementById('story-text-content');
+
+    titleElem.textContent = storyData.title || 'Our Story';
+
+    participantsElem.innerHTML = '';
+    contentElem.innerHTML = '';
+
+    if (storyData && Array.isArray(storyData.participants) && storyData.participants.length > 0) {
+        participantsElem.textContent = `Participants: ${storyData.participants.join(', ')}`;
+    }
+    if (storyData && Array.isArray(storyData.lines)) {
+        storyData.lines.forEach(line => {
+            const p = document.createElement('p');
+            p.innerHTML = `${line.text} — <strong>${line.authorNickname}</strong>`;
+            contentElem.appendChild(p);
+        });
+    }
+    storyModal.style.display = 'flex';
+}

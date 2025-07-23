@@ -296,3 +296,65 @@ form#roomForm label input[type="checkbox"] {
         font-size: 14px;
     }
 }
+
+
+.modal-overlay {
+    position: fixed;
+    z-index: 1000;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.modal-content {
+    background: #fff;
+    color: #333;
+    padding: 2rem;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 700px;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+.modal-close-btn {
+    position: absolute;
+    top: 10px; right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #aaa;
+    cursor: pointer;
+}
+.modal-close-btn:hover {
+    color: #000;
+}
+#story-text-content p {
+    margin-bottom: 1em;
+    line-height: 1.6;
+}
+#story-text-content p strong {
+    color: #4caf50;
+}
+
+
+.finished-message {
+    font-size: 1.2em;
+    font-weight: 500;
+    color: #388e3c;
+    text-align: center;
+    margin-top: 20px;
+}
+
+
+
+/* Styles for the list of participants in history */
+#story-participants {
+    text-align: right;
+    font-size: 0.9em;
+    font-style: italic;
+    color: #555;
+    margin-bottom: 25px;
+}
