@@ -10,6 +10,9 @@ public class GameStateDto {
     private String status;
     private int currentPlayerCount;
 
+    private Long storyId;
+
+
 
 
     private List<PlayerDto> players;
@@ -20,9 +23,19 @@ public class GameStateDto {
         this.ownerNickname = ownerNickname;
     }
 
+
+    public Long getStoryId() {
+        return storyId;
+    }
+
+    public void setStoryId(Long storyId) {
+        this.storyId = storyId;
+    }
+
     public GameStateDto(String lastLine, String currentPlayerNickname, int timeLeftSeconds,
                         String ownerNickname, String status, int maxPlayers, int currentPlayerCount,
-                        List<PlayerDto> players) {
+                        List<PlayerDto> players, long storyId) {
+
         this.lastLine = lastLine;
         this.currentPlayerNickname = currentPlayerNickname;
         this.timeLeftSeconds = timeLeftSeconds;
@@ -31,6 +44,7 @@ public class GameStateDto {
         this.maxPlayers = maxPlayers;
         this.currentPlayerCount = currentPlayerCount;
         this.players = players;
+        this.storyId = storyId;
     }
 
 
