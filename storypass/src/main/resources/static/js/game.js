@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fetchAndShowStory(roomId);
     });
 
-    document.getElementById('export-pdf-btn').addEventListener('click', () => exportStoryAsPdf(roomId));
+    document.getElementById('export-pdf-btn').addEventListener('click', () => exportStoryAsPdf(storyId));
 
 
     const storyModal = document.getElementById('story-modal');
@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
-
+let storyId = null;
 async function fetchGameState() {
     try {
         const res = await fetch(`/api/rooms/${roomId}/state`, {
@@ -61,6 +61,7 @@ async function fetchGameState() {
         });
         if (!res.ok) return;
         const state = await res.json();
+        storyId = state.storyId;
         updateGameStateUI(state);
         updatePlayersList(state.players, state.maxPlayers, state.currentPlayerCount || []);
     } catch (e) {
@@ -142,7 +143,8 @@ function updateGameStateUI(state) {
             } else {
                 clearInterval(countdownInterval);
                 if (isMyTurn) {
-                    submitTurnAuto('(No input provided)');
+                    const text = document.getElementById('turn-text').value.trim();
+                    submitTurnAuto(text);
                 }
             }
         }, 1000);
@@ -311,7 +313,7 @@ function displayStory(storyData) {
 
 // document.getElementById('generatetitle').addEventListener('click', async () => {
 //     try {
-//         // Step 1: Get the story ID from the room
+//
 //         const roomRes = await fetch(`/api/rooms/${roomId}`, {
 //             headers: { 'Authorization': `Bearer ${token}` }
 //         });
@@ -321,7 +323,7 @@ function displayStory(storyData) {
 //         const storyId = roomData.storyId;
 //         if (!storyId) throw new Error('No story associated with this room');
 //
-//         // Step 2: Generate title using story ID
+//
 //         document.getElementById('story-title').textContent = "Generating...";
 //         const res = await fetch(`/api/stories/${storyId}/generate-title`, {
 //             headers: { 'Authorization': `Bearer ${token}` }
@@ -338,9 +340,9 @@ function displayStory(storyData) {
 //
 
 
-function exportStoryAsPdf(roomId) {
+function exportStoryAsPdf(storyId) {
 
-    window.location.href = `/api/rooms/${roomId}/export/pdf`;
+    window.location.href = `/api/export/pdf?storyId=${storyId}`;
 }
 
 

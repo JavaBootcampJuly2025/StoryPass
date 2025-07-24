@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.storypass.storypass.service.PdfExportService;
+
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -24,7 +24,7 @@ public class GameRoomService {
     private final SimpMessagingTemplate messagingTemplate;
     private final StoryService storyService;
 
-    private final PdfExportService pdfExportService;
+
 
 
     @Autowired
@@ -32,15 +32,14 @@ public class GameRoomService {
                            StoryLineRepository storyLineRepository,
                            SimpMessagingTemplate messagingTemplate,
 
-                           StoryService storyService,
-                           PdfExportService pdfExportService) {
+                           StoryService storyService) {
 
         this.roomRepository = roomRepository;
         this.storyLineRepository = storyLineRepository;
         this.messagingTemplate = messagingTemplate;
         this.storyService = storyService;
 
-        this.pdfExportService = pdfExportService;
+
 
     }
 
@@ -185,6 +184,7 @@ public class GameRoomService {
 
         String status = room.getStatus() != null ? room.getStatus().name() : "UNKNOWN";
         int maxplayers = room.getMaxPlayers();
+        Long storyId = room.getStory().getId();
         int currentplayercount = room.getCurrentPlayerCount();
         return new GameStateDto(
                 visibleLine,
@@ -194,7 +194,8 @@ public class GameRoomService {
                 status,
                 maxplayers,
                 currentplayercount,
-                playerDtos
+                playerDtos,
+                storyId
         );
     }
 
@@ -385,7 +386,8 @@ public class GameRoomService {
                 room.getStatus() != null ? room.getStatus().name() : "UNKNOWN",
                 room.getMaxPlayers(),
                 room.getCurrentPlayerCount(),
-                playerDtos
+                playerDtos,
+                room.getStory().getId()
         );
 
         state.setMaxPlayers(room.getMaxPlayers());
@@ -429,17 +431,6 @@ public class GameRoomService {
 
     }
 
-    public byte[] getStoryAsPdf(Long roomId) {
-        GameRoom room = roomRepository.findById(roomId)
-                .orElseThrow(() -> new ResourceNotFoundException("GameRoom with ID " + roomId + " not found"));
-
-        if (room.getStory() == null) {
-            throw new ResourceNotFoundException("No story associated with this room.");
-        }
-
-        Long storyId = room.getStory().getId();
-        return pdfExportService.generatePdfForStory(storyId);
-    }
 
 }
 

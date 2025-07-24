@@ -20,14 +20,7 @@ public class StoryController {
         this.storyService = storyService;
     }
 
-    @GetMapping("/{id}/export")
-    public ResponseEntity<byte[]> exportStoryAsPdf(@PathVariable Long id) {
-        byte[] pdfBytes = pdfExportService.generatePdfForStory(id);
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=story-" + id + ".pdf")
-                .contentType(MediaType.APPLICATION_PDF)
-                .body(pdfBytes);
-    }
+
 //no need anymore :/
 //    @GetMapping("/{id}/generate-title")
 //    public ResponseEntity<String> generateTitle(@PathVariable Long id) {

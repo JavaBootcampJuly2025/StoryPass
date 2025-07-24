@@ -107,17 +107,5 @@ public class GameRoomController {
         return ResponseEntity.ok(fullStory);
     }
 
-    @GetMapping(value = "/{id}/export/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
-    public ResponseEntity<byte[]> exportStoryToPdf(@PathVariable Long id) {
-        byte[] pdfContents = gameRoomService.getStoryAsPdf(id);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentDispositionFormData("attachment", "Story.pdf");
-
-        return ResponseEntity.ok()
-                .headers(headers)
-                .contentType(MediaType.APPLICATION_PDF)
-                .body(pdfContents);
-    }
 }
 
