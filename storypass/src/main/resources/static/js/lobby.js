@@ -115,10 +115,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 document.getElementById('generatetitle').addEventListener('click', async (e) => {
-  e.preventDefault(); // prevent form submission
+  e.preventDefault();
 
   const titleInput = document.getElementById('title');
   const inputText = titleInput.value.trim();
+  titleInput.value = "Generating...";
 
   if (!inputText) {
     alert('Please enter some text to generate a title');
@@ -138,6 +139,7 @@ document.getElementById('generatetitle').addEventListener('click', async (e) => 
 
     if (!res.ok) {
       alert('Failed to generate title');
+      titleInput.value = inputText;
       return;
     }
 
@@ -147,6 +149,7 @@ document.getElementById('generatetitle').addEventListener('click', async (e) => 
   } catch (error) {
     console.error('Error generating title:', error);
     alert('Error generating title');
+    titleInput.value = inputText;
   }
 });
 
