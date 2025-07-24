@@ -8,8 +8,10 @@ public class GameStateDto {
     private int timeLeftSeconds;
     private String ownerNickname;
     private String status;
+    private int currentPlayerCount;
 
-    // New field: list of players in the room
+
+
     private List<PlayerDto> players;
 
     public GameStateDto() {}
@@ -18,14 +20,19 @@ public class GameStateDto {
         this.ownerNickname = ownerNickname;
     }
 
-    public GameStateDto(String lastLine, String currentPlayerNickname, int timeLeftSeconds, String ownerNickname, String status, List<PlayerDto> players) {
+    public GameStateDto(String lastLine, String currentPlayerNickname, int timeLeftSeconds,
+                        String ownerNickname, String status, int maxPlayers, int currentPlayerCount,
+                        List<PlayerDto> players) {
         this.lastLine = lastLine;
         this.currentPlayerNickname = currentPlayerNickname;
         this.timeLeftSeconds = timeLeftSeconds;
         this.ownerNickname = ownerNickname;
         this.status = status;
+        this.maxPlayers = maxPlayers;
+        this.currentPlayerCount = currentPlayerCount;
         this.players = players;
     }
+
 
     public GameStateDto(String lastLine, String currentPlayerNickname, int timeLeftSeconds) {
         this.lastLine = lastLine;
@@ -48,6 +55,13 @@ public class GameStateDto {
 
     public void setCurrentPlayerNickname(String currentPlayerNickname) {
         this.currentPlayerNickname = currentPlayerNickname;
+    }
+    public int getCurrentPlayerCount() {
+        return currentPlayerCount;
+    }
+
+    public void setCurrentPlayerCount(int currentPlayerCount) {
+        this.currentPlayerCount = currentPlayerCount;
     }
 
     public int getTimeLeftSeconds() {

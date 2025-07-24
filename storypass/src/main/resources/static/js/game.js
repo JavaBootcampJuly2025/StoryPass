@@ -62,14 +62,18 @@ async function fetchGameState() {
         if (!res.ok) return;
         const state = await res.json();
         updateGameStateUI(state);
-        updatePlayersList(state.players || []);
+        updatePlayersList(state.players, state.maxPlayers, state.currentPlayerCount || []);
     } catch (e) {
         console.error(e);
     }
 }
 
-function updatePlayersList(players) {
+function updatePlayersList(players, maxplayers, currentPlayerCount) {
     const playersUl = document.getElementById('players');
+
+    const playercount = document.getElementById('player-count');
+
+    playercount.textContent= currentPlayerCount + "/" +  maxplayers ;
     if (!playersUl) return;
     playersUl.innerHTML = '';
     if (players.length === 0) {
@@ -86,6 +90,8 @@ function updatePlayersList(players) {
         }
         playersUl.appendChild(li);
     });
+
+
 }
 
 function updateGameStateUI(state) {
@@ -248,7 +254,7 @@ function connectWebSocket() {
         stompClient.subscribe(`/topic/room/${roomId}/state`, (message) => {
             const state = JSON.parse(message.body);
             updateGameStateUI(state);
-            updatePlayersList(state.players || []);
+            updatePlayersList(state.players || [], state.maxPlayers, state.currentPlayerCount || 0);
         });
     }, (error) => {
         console.error('❌ WebSocket error:', error);
@@ -302,6 +308,34 @@ function displayStory(storyData) {
     }
     storyModal.style.display = 'flex';
 }
+
+// document.getElementById('generatetitle').addEventListener('click', async () => {
+//     try {
+//         // Step 1: Get the story ID from the room
+//         const roomRes = await fetch(`/api/rooms/${roomId}`, {
+//             headers: { 'Authorization': `Bearer ${token}` }
+//         });
+//         if (!roomRes.ok) throw new Error('Failed to fetch room data');
+//         const roomData = await roomRes.json();
+//
+//         const storyId = roomData.storyId;
+//         if (!storyId) throw new Error('No story associated with this room');
+//
+//         // Step 2: Generate title using story ID
+//         document.getElementById('story-title').textContent = "Generating...";
+//         const res = await fetch(`/api/stories/${storyId}/generate-title`, {
+//             headers: { 'Authorization': `Bearer ${token}` }
+//         });
+//         if (!res.ok) throw new Error('Failed to generate title');
+//         const title = await res.text();
+//         document.getElementById('story-title').textContent = title;
+//
+//     } catch (e) {
+//         alert(e.message);
+//     }
+// });
+//
+//
 
 
 function exportStoryAsPdf(roomId) {

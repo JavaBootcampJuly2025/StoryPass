@@ -1,4 +1,4 @@
-/* Reset and body */
+
 html, body {
     margin: 0;
     padding: 0;
@@ -16,7 +16,7 @@ html, body {
     width: 100%;
 }
 
-/* Container flex layout */
+
 #container {
     display: flex;
     height: 90vh;
@@ -28,7 +28,7 @@ html, body {
     overflow: hidden;
 }
 
-/* Players list sidebar */
+
 #players-list {
     width: 220px;
     background: rgba(255, 255, 255, 0.95);
@@ -61,7 +61,7 @@ html, body {
     cursor: default;
 }
 
-/* Main content area */
+
 #main-content {
     flex: 1;
     position: relative;
@@ -73,7 +73,6 @@ html, body {
     overflow-y: auto;
 }
 
-/* Greeting container top-right */
 #greeting-container {
     position: absolute;
     top: 12px;
@@ -98,7 +97,7 @@ html, body {
     text-decoration: underline;
 }
 
-/* Card styling */
+
 .card {
     max-height: 90vh;
     overflow-y: auto;
@@ -127,7 +126,6 @@ h3 {
     font-weight: 600;
 }
 
-/* Buttons */
 button {
     background: linear-gradient(45deg, #4CAF50, #2E7D32);
     border: none;
@@ -144,7 +142,7 @@ button:hover {
     background: linear-gradient(45deg, #66BB6A, #388E3C);
 }
 
-/* Create room form (if used) */
+
 #create-room-form {
     position: fixed;
     top: 50%;
@@ -158,8 +156,8 @@ button:hover {
     width: 90%;
     z-index: 1000;
     overflow-y: auto;
-    max-height: 80vh; /* limit vertical height */
-    display: none; /* hide by default */
+    max-height: 80vh;
+    display: none;
 }
 
 #create-room-form label {
@@ -350,7 +348,7 @@ form#roomForm label input[type="checkbox"] {
 
 
 
-/* Styles for the list of participants in history */
+
 #story-participants {
     text-align: right;
     font-size: 0.9em;
@@ -360,7 +358,7 @@ form#roomForm label input[type="checkbox"] {
 
 }
 
-/* Styles for footer and button in modal window  */
+
 .modal-footer {
     margin-top: 25px;
     padding-top: 15px;

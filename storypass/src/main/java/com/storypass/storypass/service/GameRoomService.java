@@ -184,13 +184,16 @@ public class GameRoomService {
         String ownerNickname = (room.getOwner() != null) ? room.getOwner().getNickname() : "";
 
         String status = room.getStatus() != null ? room.getStatus().name() : "UNKNOWN";
-
+        int maxplayers = room.getMaxPlayers();
+        int currentplayercount = room.getCurrentPlayerCount();
         return new GameStateDto(
                 visibleLine,
                 currentPlayerNickname,
                 timeLeft,
                 ownerNickname,
                 status,
+                maxplayers,
+                currentplayercount,
                 playerDtos
         );
     }
@@ -380,8 +383,11 @@ public class GameRoomService {
                 room.getTimeLeftForCurrentTurnInSeconds(),
                 room.getOwner() != null ? room.getOwner().getNickname() : "",
                 room.getStatus() != null ? room.getStatus().name() : "UNKNOWN",
+                room.getMaxPlayers(),
+                room.getCurrentPlayerCount(),
                 playerDtos
         );
+
         state.setMaxPlayers(room.getMaxPlayers());
 
         messagingTemplate.convertAndSend("/topic/room/" + room.getId() + "/state", state);
@@ -417,10 +423,12 @@ public class GameRoomService {
                 room.getMaxPlayers(),
                 room.getOwner().getNickname(),
                 room.getTimeLimitPerTurnInSeconds(),
-                room.getTurnsPerPlayer()
+                room.getTurnsPerPlayer(),
+                room.getStory().getId()
         );
 
     }
+
     public byte[] getStoryAsPdf(Long roomId) {
         GameRoom room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new ResourceNotFoundException("GameRoom with ID " + roomId + " not found"));

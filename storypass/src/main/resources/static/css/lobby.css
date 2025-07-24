@@ -95,11 +95,11 @@ button:hover {
     width: 90%;
     z-index: 1000;
     overflow-y: auto;
-    max-height: 80vh; /* limit vertical height */
-    display: none; /* hide by default */
+    max-height: 80vh;
+    display: none;
 }
 
-/* Add some spacing & style to inputs and labels */
+
 #create-room-form label {
     display: flex;
     flex-direction: column;
@@ -150,7 +150,7 @@ form#roomForm {
     text-align: left;
 }
 
-/* Labels and inputs */
+
 form#roomForm label {
     font-size: 14px;
     color: #333;
