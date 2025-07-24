@@ -305,8 +305,8 @@ function displayStory(storyData) {
 
 
 function exportStoryAsPdf(roomId) {
-    window.location.href = `/api/rooms/${roomId}/export/pdf`;
 
+    window.location.href = `/api/rooms/${roomId}/export/pdf`;
 }
 
 
