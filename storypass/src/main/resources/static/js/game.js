@@ -305,7 +305,8 @@ function displayStory(storyData) {
 
 
 function exportStoryAsPdf(roomId) {
-    window.location.href = `/api/export/pdf?storyId=${parseInt(roomId, 10) + 1}`;
+    window.location.href = `/api/rooms/${roomId}/export/pdf`;
+
 }
 
 
