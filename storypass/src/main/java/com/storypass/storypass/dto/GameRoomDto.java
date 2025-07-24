@@ -10,4 +10,5 @@ public record GameRoomDto(Long id,
                           int maxPlayers,
                           String ownerNickname,
                           int timeLimitPerTurnInSeconds,
-                          int turnsPerPlayer) {}
+                          int turnsPerPlayer,
+                          Long storyId ) {}

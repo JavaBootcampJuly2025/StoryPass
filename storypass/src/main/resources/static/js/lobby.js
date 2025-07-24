@@ -114,6 +114,41 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
+document.getElementById('generatetitle').addEventListener('click', async (e) => {
+  e.preventDefault(); // prevent form submission
+
+  const titleInput = document.getElementById('title');
+  const inputText = titleInput.value.trim();
+
+  if (!inputText) {
+    alert('Please enter some text to generate a title');
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem('token');
+    const res = await fetch('/api/stories/generate-title', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ inputText })
+    });
+
+    if (!res.ok) {
+      alert('Failed to generate title');
+      return;
+    }
+
+    const generatedTitle = await res.text();
+    titleInput.value = generatedTitle;
+
+  } catch (error) {
+    console.error('Error generating title:', error);
+    alert('Error generating title');
+  }
+});
 
 
 

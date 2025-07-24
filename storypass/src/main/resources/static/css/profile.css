@@ -1,7 +1,9 @@
-/* Reset & Global Styles */
+
 * {
     box-sizing: border-box;
 }
+
+
 
 html, body {
     margin: 0;
@@ -16,7 +18,33 @@ html, body {
     color: #2e7d32;
 }
 
-/* Profile container card */
+
+#profile-container {
+    position: relative;
+    padding-top: 40px;
+}
+
+#back-to-lobby {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+    user-select: none;
+    font-weight: 600;
+    font-size: 1rem;
+    /* optional hover */
+    transition: color 0.2s ease;
+}
+
+#back-to-lobby:hover {
+    color: #007bff;
+}
+
+
+
 #profile-container {
     background: rgba(255, 255, 255, 0.95);
     padding: 40px 50px;
@@ -27,7 +55,7 @@ html, body {
     text-align: center;
 }
 
-/* Headings */
+
 h1, h2 {
     margin: 0 0 24px 0;
     font-weight: 700;
@@ -39,7 +67,7 @@ h1#welcome-message {
     margin-bottom: 30px;
 }
 
-/* Logout button */
+
 button#logout-btn {
     background: linear-gradient(135deg, #388E3C, #66BB6A);
     color: white;
@@ -56,7 +84,7 @@ button#logout-btn:hover {
     background: linear-gradient(135deg, #4CAF50, #81C784);
 }
 
-/* Story List */
+
 #story-list {
     list-style: none;
     padding: 0;
@@ -70,7 +98,7 @@ button#logout-btn:hover {
     box-shadow: inset 0 2px 6px rgba(0,0,0,0.05);
 }
 
-/* Story List Items */
+
 #story-list li {
     display: flex;
     justify-content: space-between;
@@ -92,7 +120,7 @@ button#logout-btn:hover {
     background-color: #e6f4e6;
 }
 
-/* Download Buttons in story list */
+
 #story-list button {
     background: #4caf50;
     color: white;
@@ -143,4 +171,5 @@ button#logout-btn:hover {
         padding: 14px 0;
         font-size: 1rem;
     }
+
 }
