@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class GameRoomServiceTest {
+public class GameRoomServiceTests {
 
     private final static String TEST_USER_LOGIN = "Wolf";
     private final static String TEST_USER_NICKNAME = "wolfy";

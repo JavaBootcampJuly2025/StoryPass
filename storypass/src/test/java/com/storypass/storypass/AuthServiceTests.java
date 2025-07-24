@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class AuthServiceTest {
+class AuthServiceTests {
 
     private final static String TEST_USER_LOGIN = "Wolf";
     private final static String TEST_USER_NICKNAME = "wolfy";
