@@ -21,6 +21,7 @@ public class StoryController {
     }
 
 
+
 //no need anymore :/
 //    @GetMapping("/{id}/generate-title")
 //    public ResponseEntity<String> generateTitle(@PathVariable Long id) {
@@ -45,5 +46,6 @@ public class StoryController {
         String generatedTitle = storyService.generateTitle(inputText);
         return ResponseEntity.ok(generatedTitle);
     }
+
 
 }

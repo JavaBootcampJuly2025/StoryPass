@@ -313,7 +313,6 @@ function displayStory(storyData) {
 
 // document.getElementById('generatetitle').addEventListener('click', async () => {
 //     try {
-//
 //         const roomRes = await fetch(`/api/rooms/${roomId}`, {
 //             headers: { 'Authorization': `Bearer ${token}` }
 //         });
@@ -322,7 +321,6 @@ function displayStory(storyData) {
 //
 //         const storyId = roomData.storyId;
 //         if (!storyId) throw new Error('No story associated with this room');
-//
 //
 //         document.getElementById('story-title').textContent = "Generating...";
 //         const res = await fetch(`/api/stories/${storyId}/generate-title`, {
@@ -340,9 +338,11 @@ function displayStory(storyData) {
 //
 
 
+
 function exportStoryAsPdf(storyId) {
 
     window.location.href = `/api/export/pdf?storyId=${storyId}`;
+
 }
 
 

@@ -184,7 +184,9 @@ public class GameRoomService {
 
         String status = room.getStatus() != null ? room.getStatus().name() : "UNKNOWN";
         int maxplayers = room.getMaxPlayers();
+
         Long storyId = room.getStory().getId();
+
         int currentplayercount = room.getCurrentPlayerCount();
         return new GameStateDto(
                 visibleLine,
@@ -194,8 +196,10 @@ public class GameRoomService {
                 status,
                 maxplayers,
                 currentplayercount,
+
                 playerDtos,
                 storyId
+
         );
     }
 
@@ -388,6 +392,7 @@ public class GameRoomService {
                 room.getCurrentPlayerCount(),
                 playerDtos,
                 room.getStory().getId()
+
         );
 
         state.setMaxPlayers(room.getMaxPlayers());
@@ -430,6 +435,7 @@ public class GameRoomService {
         );
 
     }
+
 
 
 }

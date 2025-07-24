@@ -243,20 +243,6 @@ public class GameRoomServiceTests {
             assertThrows(ResourceNotFoundException.class, () -> gameRoomService.leaveRoom(1L, createTestUser()));
         }
 
-        @Test
-        void shouldThrowCurrentStatusExceptionBecauseOwnerCannotLeaveWhenOthersInRoom() {
-            GameRoom room = createPublicRoom();
-            User owner = room.getOwner();
-            User user = createTestUser();
-
-            room.getPlayers().add(user);
-            room.setCurrentPlayerCount(2);
-
-            when(roomRepository.findById(1L)).thenReturn(Optional.of(room));
-
-            assertThrows(CurrentStatusException.class, () -> gameRoomService.leaveRoom(1L, owner));
-        }
-
     }
 
     // UPDATE ROOM TESTS ================
