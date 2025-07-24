@@ -26,8 +26,6 @@ public class PdfExportService {
         return storyService.getFullStoryById(storyId).title();
     }
 
-
-
     public byte[] generatePdfForStory(Long storyId) {
         try {
             FullStoryDto story = storyService.getFullStoryById(storyId);
@@ -42,11 +40,9 @@ public class PdfExportService {
 
             Map<String, Object> params = new HashMap<>();
             params.put("title", story.title());
-           // System.out.println(story.title());
             params.put("text", fullText);
 
             JasperPrint jasperPrint = JasperFillManager.fillReport(compiledTemplate, params, new JREmptyDataSource(1));
-
 
             return JasperExportManager.exportReportToPdf(jasperPrint);
         } catch (JRException e) {
