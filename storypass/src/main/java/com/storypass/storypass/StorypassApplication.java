@@ -9,9 +9,16 @@ public class StorypassApplication {
 
 	public static void main(String[] args) {
 
-		//import db and other parameters from db.env
-		Dotenv dotenv = Dotenv.configure().filename("storypass/db.env").load();
-		dotenv.entries().forEach(entry -> System.setProperty(entry.getKey(), entry.getValue()));
+		// inside try catch for hosting purposes,
+		// so that it is able to create the docker file without the db.env file present
+		try {
+			//import db and other parameters from db.env
+			Dotenv dotenv = Dotenv.configure().filename("storypass/db.env").load();
+			dotenv.entries().forEach(entry -> System.setProperty(entry.getKey(), entry.getValue()));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 
 		SpringApplication.run(StorypassApplication.class, args);
 	}
