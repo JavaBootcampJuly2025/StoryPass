@@ -4,41 +4,37 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.springframework.stereotype.Component;
+import java.util.Arrays;
 
 @Aspect
 @Component
 @Slf4j
 public class LoggingAspect {
-
-
-
     @Pointcut("execution(public * com.storypass.storypass.service.*.*(..))")
     public void serviceMethods() {}
 
 
     @Before("serviceMethods()")
     public void logBefore(JoinPoint joinPoint) {
-        log.info("===> Executing method: {}.{}",
+        log.info("===> Executing: {}.{}() with arguments: {}",
                 joinPoint.getSignature().getDeclaringTypeName(),
-                joinPoint.getSignature().getName());
+                joinPoint.getSignature().getName(),
+                Arrays.toString(joinPoint.getArgs()));
     }
-
-
 
     @AfterReturning(pointcut = "serviceMethods()", returning = "result")
     public void logAfterReturning(JoinPoint joinPoint, Object result) {
-        log.info("<=== Method executed successfully: {}.{}",
+        log.info("<=== Success: {}.{}() returned: {}",
                 joinPoint.getSignature().getDeclaringTypeName(),
-                joinPoint.getSignature().getName());
+                joinPoint.getSignature().getName(),
+                result);
     }
-
 
     @AfterThrowing(pointcut = "serviceMethods()", throwing = "exception")
     public void logAfterThrowing(JoinPoint joinPoint, Throwable exception) {
-        log.error("!!! Method threw exception in: {}.{}",
-
+        log.error("!!! Exception in: {}.{}() | Cause: {}",
                 joinPoint.getSignature().getDeclaringTypeName(),
                 joinPoint.getSignature().getName(),
-                exception);
+                exception.getMessage());
     }
 }
