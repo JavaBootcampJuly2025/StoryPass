@@ -137,6 +137,16 @@ button:hover {
     cursor: pointer;
     width: 100%;
 }
+.room-title-link {
+    font-weight: bold;
+    margin-right: 10px;
+    text-decoration: none;
+    color: inherit;
+}
+.room-title-link:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}
 
 #create-room-form button:hover {
     background: linear-gradient(45deg, #66BB6A, #388E3C);

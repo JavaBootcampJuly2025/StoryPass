@@ -259,7 +259,7 @@ function connectWebSocket() {
             updatePlayersList(state.players || [], state.maxPlayers, state.currentPlayerCount || 0);
         });
     }, (error) => {
-        console.error('❌ WebSocket error:', error);
+        console.error('WebSocket error:', error);
     });
 }
 
@@ -295,8 +295,8 @@ function displayStory(storyData) {
 
     titleElem.textContent = storyData.title || 'Our Story';
 
-    participantsElem.innerHTML = '';
-    contentElem.innerHTML = '';
+    participantsElem.textContent = `Participants: ${storyData.participants.join(', ')}`;
+
 
     if (storyData && Array.isArray(storyData.participants) && storyData.participants.length > 0) {
         participantsElem.textContent = `Participants: ${storyData.participants.join(', ')}`;
@@ -304,7 +304,12 @@ function displayStory(storyData) {
     if (storyData && Array.isArray(storyData.lines)) {
         storyData.lines.forEach(line => {
             const p = document.createElement('p');
-            p.innerHTML = `${line.text} — <strong>${line.authorNickname}</strong>`;
+            const strong = document.createElement('strong');
+            strong.textContent = line.authorNickname;
+
+            p.textContent = line.text + ' — ';
+            p.appendChild(strong);
+
             contentElem.appendChild(p);
         });
     }
