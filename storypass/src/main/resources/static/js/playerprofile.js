@@ -27,13 +27,21 @@ async function fetchProfile() {
         } else {
             profile.stories.forEach(story => {
                 const li = document.createElement('li');
-                li.innerHTML = `
-  <strong>${story.title}</strong>
-  <button onclick="downloadPdf(${story.storyId})" style="margin-left: 10px;">Download PDF</button>
-`;
+
+                const strong = document.createElement('strong');
+                strong.textContent = story.title;
+
+                const button = document.createElement('button');
+                button.textContent = 'Download PDF';
+                button.style.marginLeft = '10px';
+                button.addEventListener('click', () => downloadPdf(story.storyId));
+
+                li.appendChild(strong);
+                li.appendChild(button);
 
                 list.appendChild(li);
             });
+
         }
 
     } catch (error) {
