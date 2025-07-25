@@ -47,14 +47,30 @@ function renderRoomList(rooms) {
 
   rooms.forEach(room => {
     const li = document.createElement('li');
-    li.innerHTML = `
-      <strong>${room.title}</strong> - ${room.currentPlayerCount}/${room.maxPlayers} players 
-      (${room.isPublic ? 'Public' : 'Private'}) - Owner: ${room.ownerNickname}
-      <button onclick="joinRoomPrompt(${room.id}, ${room.isPublic})">Join</button>
-    `;
+
+    const link = document.createElement('a');
+    link.href = `/game?roomId=${encodeURIComponent(room.id)}`;
+    link.classList.add('room-title-link');
+    link.textContent = room.title;
+
+
+
+    const info = document.createElement('span');
+    info.textContent = ` - ${room.currentPlayerCount}/${room.maxPlayers} players `
+        + `(${room.isPublic ? 'Public' : 'Private'}) - Owner: ${room.ownerNickname}`;
+
+    const button = document.createElement('button');
+    button.textContent = 'Join';
+    button.addEventListener('click', () => joinRoomPrompt(room.id, room.isPublic));
+
+    li.appendChild(link);
+    li.appendChild(info);
+    li.appendChild(button);
+
     list.appendChild(li);
   });
 }
+
 
 
 function connectWebSocket() {
@@ -267,6 +283,7 @@ async function joinRoomPrompt(roomId, isPublic) {
     if (!res.ok) {
       const err = await res.json();
       alert('Failed to join room: ' + (err.message || res.statusText));
+      window.location.href = `/game?roomId=${roomId}`;
       return;
     }
 
